@@ -1,0 +1,24 @@
+name: Auto Label Conflicts
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  label-conflicts:
+    runs-on: ubuntu-latest
+    name: Label PRs with conflicts
+    
+    permissions:
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Check for conflicts
+        uses: eps1lon/actions-label-merge-conflict@v3
+        with:
+          dirtyLabel: "⚠️ merge conflict"
+          removeOnDirtyLabel: "✅ ready to merge"
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          commentOnDirty: "⚠️ This PR has merge conflicts. Please resolve them before merging."
+          commentOnClean: "✅ Merge conflicts have been resolved. This PR is ready for review."
