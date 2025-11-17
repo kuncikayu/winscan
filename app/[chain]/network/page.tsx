@@ -38,7 +38,7 @@ export default function NetworkPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Use sessionStorage for chains
+
     const cachedChains = sessionStorage.getItem('chains');
     
     if (cachedChains) {
@@ -69,16 +69,14 @@ export default function NetworkPage() {
     
     const cacheKey = `network_${selectedChain.chain_name}`;
     const cacheTimeout = 30000; // 30 seconds
-    
-    // Load from sessionStorage immediately
+
     try {
       const cached = sessionStorage.getItem(cacheKey);
       if (cached) {
         const { data, timestamp } = JSON.parse(cached);
         setNetworkInfo(data);
         setLoading(false);
-        
-        // Skip fetch if cache is fresh
+
         if (Date.now() - timestamp < cacheTimeout) {
           return;
         }
@@ -86,8 +84,7 @@ export default function NetworkPage() {
     } catch (e) {
       console.warn('Cache read error:', e);
     }
-    
-    // Fetch fresh data with timeout
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
     
@@ -310,3 +307,4 @@ export default function NetworkPage() {
     </div>
   );
 }
+

@@ -1,5 +1,4 @@
 'use client';
-
 import { ValidatorData, ChainAsset } from '@/types/chain';
 import Link from 'next/link';
 import { Users, TrendingUp } from 'lucide-react';
@@ -7,13 +6,11 @@ import ValidatorAvatar from '@/components/ValidatorAvatar';
 import { memo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
-
 interface ValidatorsTableProps {
   validators: ValidatorData[];
   chainName: string;
   asset?: ChainAsset;
 }
-
 const ValidatorRow = memo(({ validator, chainPath, asset, t }: { 
   validator: ValidatorData; 
   chainPath: string; 
@@ -27,11 +24,9 @@ const ValidatorRow = memo(({ validator, chainPath, asset, t }: {
     if (powerNum >= 1e3) return `${(powerNum / 1e3).toFixed(2)}K`;
     return powerNum.toFixed(2);
   };
-
   const formatCommission = (commission: string) => {
     return `${(parseFloat(commission) * 100).toFixed(2)}%`;
   };
-
   return (
     <tr className="border-b border-gray-800 hover:bg-[#1a1a1a] transition-colors duration-150">
       <td className="px-6 py-4">
@@ -75,17 +70,13 @@ const ValidatorRow = memo(({ validator, chainPath, asset, t }: {
     </tr>
   );
 });
-
 ValidatorRow.displayName = 'ValidatorRow';
-
 export default function ValidatorsTable({ validators, chainName, asset }: ValidatorsTableProps) {
   const chainPath = chainName.toLowerCase().replace(/\s+/g, '-');
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(language, key);
-
   const totalVotingPower = validators.reduce((sum, v) => sum + parseFloat(v.votingPower || '0'), 0);
   const activeCount = validators.filter(v => v.status === 'BOND_STATUS_BONDED' && !v.jailed).length;
-
   const formatVotingPower = (power: string) => {
     if (!asset) return power;
     const powerNum = parseFloat(power) / Math.pow(10, Number(asset.exponent));
@@ -93,7 +84,6 @@ export default function ValidatorsTable({ validators, chainName, asset }: Valida
     if (powerNum >= 1e3) return `${(powerNum / 1e3).toFixed(2)}K`;
     return powerNum.toFixed(2);
   };
-
   return (
     <div className="space-y-6 smooth-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -124,7 +114,6 @@ export default function ValidatorsTable({ validators, chainName, asset }: Valida
           </div>
         </div>
       </div>
-
       <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg overflow-hidden">
         <table className="w-full">
           <thead className="bg-[#0f0f0f] border-b border-gray-800">

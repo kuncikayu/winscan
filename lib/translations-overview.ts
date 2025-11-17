@@ -1,7 +1,5 @@
-// Extended translations for Overview page
 export const overviewTranslations = {
   en: {
-    // Overview Stats
     'overview.networkOverview': 'Network Overview & Statistics',
     'overview.live': 'Live',
     'overview.updating': 'Updating...',
@@ -19,21 +17,15 @@ export const overviewTranslations = {
     'overview.inflation': 'Inflation',
     'overview.communityPool': 'Community Pool',
     'overview.stakingAPR': 'Staking APR',
-    
-    // Charts
     'overview.tokenomics': 'Tokenomics Distribution',
     'overview.transactionHistory': 'Transaction History (24h)',
     'overview.votingPower': 'Voting Power Distribution',
-    
-    // Latest Blocks
     'overview.latestBlocks': 'Latest Blocks',
     'overview.viewAllBlocks': 'View All Blocks',
     'overview.blockHeight': 'Block Height',
     'overview.proposer': 'Proposer',
     'overview.transactions': 'Transactions',
     'overview.timestamp': 'Timestamp',
-    
-    // Latest Transactions
     'overview.latestTransactions': 'Latest Transactions',
     'overview.viewAllTransactions': 'View All Transactions',
     'overview.txHash': 'Transaction Hash',
@@ -47,7 +39,6 @@ export const overviewTranslations = {
     'overview.hours': 'hours',
     'overview.days': 'days',
   },
-  
   id: {
     'overview.networkOverview': 'Gambaran Jaringan & Statistik',
     'overview.live': 'Live',
@@ -66,18 +57,15 @@ export const overviewTranslations = {
     'overview.inflation': 'Inflasi',
     'overview.communityPool': 'Pool Komunitas',
     'overview.stakingAPR': 'APR Staking',
-    
     'overview.tokenomics': 'Distribusi Tokenomik',
     'overview.transactionHistory': 'Riwayat Transaksi (24j)',
     'overview.votingPower': 'Distribusi Kekuatan Voting',
-    
     'overview.latestBlocks': 'Blok Terbaru',
     'overview.viewAllBlocks': 'Lihat Semua Blok',
     'overview.blockHeight': 'Tinggi Blok',
     'overview.proposer': 'Pengusul',
     'overview.transactions': 'Transaksi',
     'overview.timestamp': 'Waktu',
-    
     'overview.latestTransactions': 'Transaksi Terbaru',
     'overview.viewAllTransactions': 'Lihat Semua Transaksi',
     'overview.txHash': 'Hash Transaksi',
@@ -91,7 +79,6 @@ export const overviewTranslations = {
     'overview.hours': 'jam',
     'overview.days': 'hari',
   },
-  
   zh: {
     'overview.networkOverview': '网络概览与统计',
     'overview.live': '实时',
@@ -110,18 +97,15 @@ export const overviewTranslations = {
     'overview.inflation': '通货膨胀',
     'overview.communityPool': '社区池',
     'overview.stakingAPR': '质押年化收益',
-    
     'overview.tokenomics': '代币经济分布',
     'overview.transactionHistory': '交易历史（24小时）',
     'overview.votingPower': '投票权分布',
-    
     'overview.latestBlocks': '最新区块',
     'overview.viewAllBlocks': '查看所有区块',
     'overview.blockHeight': '区块高度',
     'overview.proposer': '提议者',
     'overview.transactions': '交易',
     'overview.timestamp': '时间戳',
-    
     'overview.latestTransactions': '最新交易',
     'overview.viewAllTransactions': '查看所有交易',
     'overview.txHash': '交易哈希',
@@ -135,7 +119,6 @@ export const overviewTranslations = {
     'overview.hours': '小时',
     'overview.days': '天',
   },
-  
   ja: {
     'overview.networkOverview': 'ネットワーク概要と統計',
     'overview.live': 'ライブ',
@@ -154,18 +137,15 @@ export const overviewTranslations = {
     'overview.inflation': 'インフレ率',
     'overview.communityPool': 'コミュニティプール',
     'overview.stakingAPR': 'ステーキングAPR',
-    
     'overview.tokenomics': 'トークノミクス分布',
     'overview.transactionHistory': 'トランザクション履歴（24時間）',
     'overview.votingPower': '投票権分布',
-    
     'overview.latestBlocks': '最新ブロック',
     'overview.viewAllBlocks': 'すべてのブロックを見る',
     'overview.blockHeight': 'ブロック高',
     'overview.proposer': '提案者',
     'overview.transactions': 'トランザクション',
     'overview.timestamp': 'タイムスタンプ',
-    
     'overview.latestTransactions': '最新トランザクション',
     'overview.viewAllTransactions': 'すべてのトランザクションを見る',
     'overview.txHash': 'トランザクションハッシュ',
@@ -179,7 +159,6 @@ export const overviewTranslations = {
     'overview.hours': '時間',
     'overview.days': '日',
   },
-  
   hi: {
     'overview.networkOverview': 'नेटवर्क अवलोकन और सांख्यिकी',
     'overview.live': 'लाइव',
@@ -198,18 +177,15 @@ export const overviewTranslations = {
     'overview.inflation': 'मुद्रास्फीति',
     'overview.communityPool': 'सामुदायिक पूल',
     'overview.stakingAPR': 'स्टेकिंग APR',
-    
     'overview.tokenomics': 'टोकनॉमिक्स वितरण',
     'overview.transactionHistory': 'लेनदेन इतिहास (24 घंटे)',
     'overview.votingPower': 'मतदान शक्ति वितरण',
-    
     'overview.latestBlocks': 'नवीनतम ब्लॉक',
     'overview.viewAllBlocks': 'सभी ब्लॉक देखें',
     'overview.blockHeight': 'ब्लॉक ऊंचाई',
     'overview.proposer': 'प्रस्तावक',
     'overview.transactions': 'लेनदेन',
     'overview.timestamp': 'समय',
-    
     'overview.latestTransactions': 'नवीनतम लेनदेन',
     'overview.viewAllTransactions': 'सभी लेनदेन देखें',
     'overview.txHash': 'लेनदेन हैश',
@@ -223,7 +199,6 @@ export const overviewTranslations = {
     'overview.hours': 'घंटे',
     'overview.days': 'दिन',
   },
-  
   ru: {
     'overview.networkOverview': 'Обзор сети и статистика',
     'overview.live': 'В реальном времени',
@@ -242,18 +217,15 @@ export const overviewTranslations = {
     'overview.inflation': 'Инфляция',
     'overview.communityPool': 'Пул сообщества',
     'overview.stakingAPR': 'APR стейкинга',
-    
     'overview.tokenomics': 'Распределение токенов',
     'overview.transactionHistory': 'История транзакций (24ч)',
     'overview.votingPower': 'Распределение голосов',
-    
     'overview.latestBlocks': 'Последние блоки',
     'overview.viewAllBlocks': 'Все блоки',
     'overview.blockHeight': 'Высота блока',
     'overview.proposer': 'Предложивший',
     'overview.transactions': 'Транзакции',
     'overview.timestamp': 'Временная метка',
-    
     'overview.latestTransactions': 'Последние транзакции',
     'overview.viewAllTransactions': 'Все транзакции',
     'overview.txHash': 'Хеш транзакции',
@@ -267,7 +239,6 @@ export const overviewTranslations = {
     'overview.hours': 'часов',
     'overview.days': 'дней',
   },
-  
   vi: {
     'overview.networkOverview': 'Tổng quan mạng lưới & Thống kê',
     'overview.live': 'Trực tiếp',
@@ -286,18 +257,15 @@ export const overviewTranslations = {
     'overview.inflation': 'Lạm phát',
     'overview.communityPool': 'Quỹ cộng đồng',
     'overview.stakingAPR': 'APR Staking',
-    
     'overview.tokenomics': 'Phân phối Tokenomics',
     'overview.transactionHistory': 'Lịch sử giao dịch (24h)',
     'overview.votingPower': 'Phân phối quyền bỏ phiếu',
-    
     'overview.latestBlocks': 'Khối mới nhất',
     'overview.viewAllBlocks': 'Xem tất cả khối',
     'overview.blockHeight': 'Chiều cao khối',
     'overview.proposer': 'Người đề xuất',
     'overview.transactions': 'Giao dịch',
     'overview.timestamp': 'Dấu thời gian',
-    
     'overview.latestTransactions': 'Giao dịch mới nhất',
     'overview.viewAllTransactions': 'Xem tất cả giao dịch',
     'overview.txHash': 'Hash giao dịch',

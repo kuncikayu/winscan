@@ -1,18 +1,13 @@
 'use client';
-
 import { useEffect, useRef, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
-
 interface TransactionHistoryChartProps {
   data?: { date: string; count: number }[];
 }
-
 type TimeRange = '7d' | '30d' | '365d';
-
 export default function TransactionHistoryChart({ data }: TransactionHistoryChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
-
   const getDaysCount = () => {
     switch (timeRange) {
       case '7d': return 7;
@@ -21,7 +16,6 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
       default: return 30;
     }
   };
-
   const getLabel = () => {
     switch (timeRange) {
       case '7d': return '7 Days';
@@ -30,17 +24,12 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
       default: return '30 Days';
     }
   };
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
     const daysCount = getDaysCount();
-
-    // Process data - limit to requested days
     let chartData = data && data.length > 0 
       ? data.slice(0, daysCount).reverse() 
       : Array.from({ length: daysCount }, (_, i) => {
@@ -51,8 +40,6 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
             count: 0
           };
         });
-
-    // Ensure we have exactly daysCount items
     if (chartData.length < daysCount) {
       const missing = daysCount - chartData.length;
       const oldestDate = new Date(chartData[0].date);
@@ -66,33 +53,22 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
       });
       chartData = [...fillerData, ...chartData];
     }
-
     console.log('[TransactionChart] Rendering with data:', chartData.slice(0, 3));
-
-    // Set canvas size
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
-    
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
-
     const width = rect.width;
     const height = rect.height;
     const padding = { top: 20, right: 20, bottom: 40, left: 50 };
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
-
-    // Clear canvas
     ctx.clearRect(0, 0, width, height);
-
-    // Find max value for scaling
     const maxCount = Math.max(...chartData.map(d => d.count), 1);
     const minCount = 0;
     const range = maxCount - minCount;
-
-    // Draw grid lines
     ctx.strokeStyle = '#2a2a2a';
     ctx.lineWidth = 1;
     const gridLines = 5;
@@ -102,33 +78,25 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
       ctx.moveTo(padding.left, y);
       ctx.lineTo(padding.left + chartWidth, y);
       ctx.stroke();
-
-      // Y-axis labels
       const value = Math.round(maxCount - (range / gridLines) * i);
       ctx.fillStyle = '#888';
       ctx.font = '11px Inter, sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(value.toString(), padding.left - 10, y + 4);
     }
-
-    // Draw area chart
     const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
     gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
     gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
-
     ctx.beginPath();
     chartData.forEach((point, i) => {
       const x = padding.left + (chartWidth / (chartData.length - 1)) * i;
       const y = padding.top + chartHeight - ((point.count - minCount) / range) * chartHeight;
-      
       if (i === 0) {
         ctx.moveTo(x, y);
       } else {
         ctx.lineTo(x, y);
       }
     });
-
-    // Complete the area
     const lastX = padding.left + chartWidth;
     const baseY = padding.top + chartHeight;
     ctx.lineTo(lastX, baseY);
@@ -136,13 +104,10 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
     ctx.closePath();
     ctx.fillStyle = gradient;
     ctx.fill();
-
-    // Draw line
     ctx.beginPath();
     chartData.forEach((point, i) => {
       const x = padding.left + (chartWidth / (chartData.length - 1)) * i;
       const y = padding.top + chartHeight - ((point.count - minCount) / range) * chartHeight;
-      
       if (i === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -152,12 +117,9 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
     ctx.strokeStyle = '#3b82f6';
     ctx.lineWidth = 2;
     ctx.stroke();
-
-    // Draw dots
     chartData.forEach((point, i) => {
       const x = padding.left + (chartWidth / (chartData.length - 1)) * i;
       const y = padding.top + chartHeight - ((point.count - minCount) / range) * chartHeight;
-      
       ctx.beginPath();
       ctx.arc(x, y, 3, 0, Math.PI * 2);
       ctx.fillStyle = '#3b82f6';
@@ -166,14 +128,10 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
       ctx.lineWidth = 2;
       ctx.stroke();
     });
-
-    // X-axis labels (adjust spacing based on range)
     ctx.fillStyle = '#888';
     ctx.font = '10px Inter, sans-serif';
     ctx.textAlign = 'center';
-    
     const labelInterval = timeRange === '365d' ? 30 : (timeRange === '30d' ? 5 : 1);
-    
     chartData.forEach((point, i) => {
       if (i % labelInterval === 0 || i === chartData.length - 1) {
         const x = padding.left + (chartWidth / (chartData.length - 1)) * i;
@@ -184,9 +142,7 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
         ctx.fillText(label, x, height - 20);
       }
     });
-
   }, [data, timeRange]);
-
   return (
     <div className="bg-card border border-theme rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">

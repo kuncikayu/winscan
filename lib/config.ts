@@ -1,5 +1,4 @@
 export const API_URL = '';
-
 export function getApiUrl(path: string): string {
   if (!API_URL) {
     return `/${path}`;
@@ -7,7 +6,6 @@ export function getApiUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   return `${API_URL}/${cleanPath}`;
 }
-
 export const CACHE_DURATION = {
   CHAINS: 3600000,
   VALIDATORS: 30000,

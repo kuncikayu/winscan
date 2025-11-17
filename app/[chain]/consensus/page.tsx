@@ -111,12 +111,10 @@ export default function ConsensusPage() {
             prevotes: heightVoteSet?.prevotes_bit_array || 'N/A',
           });
 
-          // Parse validators
           const vals = validatorsData?.result?.validators || [];
           const lastCommit = blockData?.result?.block?.last_commit?.signatures || [];
           const stakingVals = stakingValidators?.validators || [];
-          
-          // Create lookup map for consensus address to validator info
+
           const validatorMap = new Map();
           stakingVals.forEach((val: any) => {
             validatorMap.set(val.consensus_pubkey?.key, {
@@ -127,12 +125,11 @@ export default function ConsensusPage() {
           });
           
           const parsedValidators = vals.map((val: any) => {
-            // Check if validator signed last block
+
             const isSigning = lastCommit.some((sig: any) => 
               sig.validator_address === val.address && sig.signature !== null
             );
 
-            // Find validator info from staking module
             const validatorInfo = validatorMap.get(val.pub_key?.value) || {};
 
             return {
@@ -146,12 +143,11 @@ export default function ConsensusPage() {
             };
           });
 
-          // Sort validators: signing first, then by voting power
           parsedValidators.sort((a: ValidatorConsensus, b: ValidatorConsensus) => {
-            // First sort by signing status
+
             if (a.is_signing && !b.is_signing) return -1;
             if (!a.is_signing && b.is_signing) return 1;
-            // Then by voting power (descending)
+
             return parseInt(b.voting_power) - parseInt(a.voting_power);
           });
 
@@ -166,13 +162,12 @@ export default function ConsensusPage() {
     }
   }, [selectedChain]);
 
-  // Auto-refresh every 5 seconds (silent, no loading state)
   useEffect(() => {
     if (!selectedChain || !selectedChain.rpc || selectedChain.rpc.length === 0) return;
     if (!activeRpc || loading) return; // Don't start until initial load complete
 
     const refreshInterval = setInterval(() => {
-      // Silent background refresh - no loading spinner or disruption
+
       setIsRefreshing(true);
       
       Promise.all([
@@ -183,8 +178,7 @@ export default function ConsensusPage() {
         .then(([consensusState, validatorsData, blockData]) => {
           const roundState = consensusState?.result?.round_state;
           const heightVoteSet = roundState?.height_vote_set?.[0];
-          
-          // Smoothly update consensus data
+
           setConsensusData({
             height: roundState?.height || blockData?.result?.block?.header?.height || '0',
             round: roundState?.round || '0',
@@ -195,7 +189,6 @@ export default function ConsensusPage() {
             prevotes: heightVoteSet?.prevotes_bit_array || 'N/A',
           });
 
-          // Update signing status only (efficient, no full re-render)
           const vals = validatorsData?.result?.validators || [];
           const lastCommit = blockData?.result?.block?.last_commit?.signatures || [];
           
@@ -224,7 +217,6 @@ export default function ConsensusPage() {
   const totalValidators = validators.length;
   const signingPercentage = totalValidators > 0 ? ((signingValidators / totalValidators) * 100).toFixed(2) : '0';
 
-  // Format voting power with K/M suffixes
   const formatVotingPower = (power: string) => {
     const num = parseInt(power);
     if (num >= 1000000) {
@@ -421,3 +413,4 @@ export default function ConsensusPage() {
     </div>
   );
 }
+

@@ -24,7 +24,7 @@ export default function TransactionsPage() {
   const txsPerPage = 200;
 
   useEffect(() => {
-    // Use sessionStorage for instant load
+
     const cachedChains = sessionStorage.getItem('chains');
     
     if (cachedChains) {
@@ -51,11 +51,9 @@ export default function TransactionsPage() {
     }
   }, [params]);
 
-  // Fetch transactions function
   const fetchTransactions = useCallback(async (showLoading = true) => {
     if (!selectedChain) return;
-    
-    // Show cached data immediately
+
     const cacheKey = getCacheKey('transactions', selectedChain.chain_name, `page${currentPage}`);
     const cachedData = getStaleCache<TransactionData[]>(cacheKey);
     
@@ -70,8 +68,7 @@ export default function TransactionsPage() {
     try {
       const res = await fetchApi(`/api/transactions?chain=${selectedChain.chain_id || selectedChain.chain_name}&limit=${txsPerPage}&page=${currentPage}`);
       const data = await res.json();
-      
-      // Ensure data is array
+
       const txData = Array.isArray(data) ? data : [];
       setTransactions(txData);
       setCache(cacheKey, txData);
@@ -84,12 +81,10 @@ export default function TransactionsPage() {
     }
   }, [selectedChain, currentPage, txsPerPage]);
 
-  // Initial load
   useEffect(() => {
     fetchTransactions(true);
   }, [fetchTransactions]);
 
-  // Auto refresh every 6 seconds
   useEffect(() => {
     if (!selectedChain || currentPage !== 1) return;
     
@@ -156,3 +151,4 @@ export default function TransactionsPage() {
     </div>
   );
 }
+

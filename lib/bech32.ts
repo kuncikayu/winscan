@@ -1,8 +1,4 @@
-// Bech32 encoding/decoding utilities
-// Based on BIP173: https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
-
 const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-
 function polymod(values: number[]): number {
   const GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
   let chk = 1;
@@ -17,7 +13,6 @@ function polymod(values: number[]): number {
   }
   return chk;
 }
-
 function hrpExpand(hrp: string): number[] {
   const ret = [];
   for (let p = 0; p < hrp.length; p++) {
@@ -29,7 +24,6 @@ function hrpExpand(hrp: string): number[] {
   }
   return ret;
 }
-
 function createChecksum(hrp: string, data: number[]): number[] {
   const values = hrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
   const mod = polymod(values) ^ 1;
@@ -39,7 +33,6 @@ function createChecksum(hrp: string, data: number[]): number[] {
   }
   return ret;
 }
-
 function convertBits(data: number[], fromBits: number, toBits: number, pad: boolean): number[] | null {
   let acc = 0;
   let bits = 0;
@@ -65,7 +58,6 @@ function convertBits(data: number[], fromBits: number, toBits: number, pad: bool
   }
   return ret;
 }
-
 export function bech32Encode(hrp: string, data: Buffer): string {
   const dataArray = Array.from(data);
   const converted = convertBits(dataArray, 8, 5, true);
@@ -79,7 +71,6 @@ export function bech32Encode(hrp: string, data: Buffer): string {
   }
   return ret;
 }
-
 export function bech32Decode(bechString: string): { hrp: string; data: Buffer } | null {
   let p;
   let hasLower = false;
@@ -121,24 +112,13 @@ export function bech32Decode(bechString: string): { hrp: string; data: Buffer } 
   }
   return { hrp, data: Buffer.from(converted) };
 }
-
 function verifyChecksum(hrp: string, data: number[]): boolean {
   return polymod(hrpExpand(hrp).concat(data)) === 1;
 }
-
-// Convert consensus pubkey (base64) to consensus address (bech32)
 export function pubkeyToConsensusAddress(pubkeyBase64: string, prefix: string = 'cosmosvalcons'): string {
   const crypto = require('crypto');
-  
-  // Decode base64 pubkey
   const pubkeyBytes = Buffer.from(pubkeyBase64, 'base64');
-  
-  // SHA256 hash
   const hash = crypto.createHash('sha256').update(pubkeyBytes).digest();
-  
-  // Take first 20 bytes
   const address = hash.slice(0, 20);
-  
-  // Encode as bech32
   return bech32Encode(prefix, address);
 }

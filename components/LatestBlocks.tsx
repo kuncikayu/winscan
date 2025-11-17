@@ -1,35 +1,28 @@
 'use client';
-
 import { BlockData } from '@/types/chain';
 import { formatDistanceToNow } from 'date-fns';
 import { Box, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
-
 interface LatestBlocksProps {
   blocks: BlockData[];
   chainName: string;
 }
-
 export default function LatestBlocks({ blocks, chainName }: LatestBlocksProps) {
   const [highlightedBlocks, setHighlightedBlocks] = useState<Set<number>>(new Set());
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(language, key);
-
   useEffect(() => {
     if (blocks.length > 0) {
       const newBlocks = blocks.slice(0, 2).map(b => b.height);
       setHighlightedBlocks(new Set(newBlocks));
-      
       const timeout = setTimeout(() => {
         setHighlightedBlocks(new Set());
       }, 3000);
-      
       return () => clearTimeout(timeout);
     }
   }, [blocks]);
-
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
@@ -41,7 +34,6 @@ export default function LatestBlocks({ blocks, chainName }: LatestBlocksProps) {
           {t('overview.viewAllBlocks')} →
         </a>
       </div>
-
       <div className="space-y-3">
         {blocks.length === 0 ? (
           <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>

@@ -2,41 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
 const API_URL = process.env.API_URL || 'https://ssl.winsnip.xyz';
-
-// Calculate hex address from consensus public key
 function pubkeyToAddress(pubkeyBase64: string): string {
   try {
     const pubkeyBytes = Buffer.from(pubkeyBase64, 'base64');
     const hash = crypto.createHash('sha256').update(pubkeyBytes).digest();
-    // Take first 20 bytes and convert to uppercase hex
     return hash.slice(0, 20).toString('hex').toUpperCase();
   } catch (e) {
     return '';
   }
 }
-
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const chainId = searchParams.get('chain');
     const height = searchParams.get('height');
-    
     if (!chainId || !height) {
       return NextResponse.json(
         { error: 'Chain and height parameters required' },
         { status: 400 }
       );
     }
-
-    // Read chain configuration from local Chains directory
     const chainsDir = path.join(process.cwd(), 'Chains');
     const chainFilePath = path.join(chainsDir, `${chainId}.json`);
-    
     if (!fs.existsSync(chainFilePath)) {
       console.error(`Chain file not found: ${chainFilePath}`);
       return NextResponse.json(
@@ -44,24 +34,19 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-
     const chainData = JSON.parse(fs.readFileSync(chainFilePath, 'utf-8'));
     const rpcUrl = chainData.rpc?.[0]?.address;
     const apiUrl = chainData.api?.[0]?.address;
-    
     if (!rpcUrl) {
       return NextResponse.json(
         { error: 'No RPC URL configured for this chain' },
         { status: 500 }
       );
     }
-
-    // Fetch block from RPC
     const blockResponse = await fetch(`${rpcUrl}/block?height=${height}`, {
       headers: { 'Accept': 'application/json' },
-      next: { revalidate: 60 } // Blocks are immutable, cache longer
+      next: { revalidate: 60 }
     });
-
     if (!blockResponse.ok) {
       console.error('RPC block fetch error:', blockResponse.status);
       return NextResponse.json(
@@ -69,34 +54,25 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-
     const rpcData = await blockResponse.json();
     const blockData = rpcData.result;
-
-    // Fetch validator info if API is available
     let proposerMoniker = 'Unknown';
     let proposerIdentity: string | undefined;
     let proposerAddress: string | undefined;
     const proposerConsensusAddress = blockData.block.header.proposer_address;
-    
     if (apiUrl) {
       try {
-        // Fetch all bonded validators
         const validatorsResponse = await fetch(
           `${apiUrl}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=300`,
           { headers: { 'Accept': 'application/json' }, next: { revalidate: 30 } }
         );
-        
         if (validatorsResponse.ok) {
           const validatorsData = await validatorsResponse.json();
-          
-          // Find validator by calculating address from consensus pubkey
           const validator = validatorsData.validators?.find((v: any) => {
             if (!v.consensus_pubkey?.key) return false;
             const calculatedAddress = pubkeyToAddress(v.consensus_pubkey.key);
             return calculatedAddress === proposerConsensusAddress;
           });
-          
           if (validator) {
             proposerMoniker = validator.description?.moniker || 'Unknown';
             proposerIdentity = validator.description?.identity;
@@ -107,11 +83,8 @@ export async function GET(request: NextRequest) {
         console.error('Failed to fetch validator info:', e);
       }
     }
-
-    // Fetch transactions if any
     const transactions = [];
     const txCount = blockData.block.data.txs?.length || 0;
-    
     if (txCount > 0 && apiUrl) {
       try {
         const txResponse = await fetch(
@@ -131,8 +104,6 @@ export async function GET(request: NextRequest) {
         console.error('Failed to fetch transactions:', e);
       }
     }
-    
-    // Transform to expected format
     const blockDetail = {
       height: parseInt(blockData.block.header.height),
       hash: blockData.block_id.hash,
@@ -146,13 +117,11 @@ export async function GET(request: NextRequest) {
       gasWanted: 'N/A',
       transactions,
     };
-
     return NextResponse.json(blockDetail, {
       headers: {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
       }
     });
-
   } catch (error: any) {
     console.error('Block API error:', error);
     return NextResponse.json(

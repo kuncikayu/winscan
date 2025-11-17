@@ -1,47 +1,38 @@
 'use client';
-
 import { TransactionData, ChainAsset } from '@/types/chain';
 import { formatDistanceToNow } from 'date-fns';
 import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
-
 interface LatestTransactionsProps {
   transactions: TransactionData[];
   chainName: string;
   asset?: ChainAsset;
 }
-
 export default function LatestTransactions({ transactions, chainName, asset }: LatestTransactionsProps) {
   const [highlightedTxs, setHighlightedTxs] = useState<Set<string>>(new Set());
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(language, key);
-
   useEffect(() => {
     if (transactions.length > 0) {
       const newTxs = transactions.slice(0, 2).map(tx => tx.hash);
       setHighlightedTxs(new Set(newTxs));
-      
       const timeout = setTimeout(() => {
         setHighlightedTxs(new Set());
       }, 3000);
-      
       return () => clearTimeout(timeout);
     }
   }, [transactions]);
-
   const formatFee = (fee: string) => {
     if (!asset) return fee;
     const feeNum = parseFloat(fee) / Math.pow(10, Number(asset.exponent));
     return `${feeNum.toFixed(6)} ${asset.symbol}`;
   };
-
   const getTypeShortName = (type: string) => {
     const parts = type.split('.');
     return parts[parts.length - 1] || type;
   };
-
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
@@ -53,7 +44,6 @@ export default function LatestTransactions({ transactions, chainName, asset }: L
           {t('overview.viewAllTransactions')} →
         </a>
       </div>
-
       <div className="space-y-3">
         {transactions.length === 0 ? (
           <div className="text-center py-8 text-gray-500">

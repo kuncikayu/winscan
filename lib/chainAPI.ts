@@ -1,21 +1,17 @@
 import axios from 'axios';
 import { BlockData, TransactionData, ValidatorData, ChainStats } from '@/types/chain';
 import crypto from 'crypto';
-
 export class ChainAPI {
   private apiUrl: string;
   private rpcUrl: string;
-
   constructor(apiUrl: string, rpcUrl: string) {
     this.apiUrl = apiUrl;
     this.rpcUrl = rpcUrl;
   }
-
   async getLatestBlocks(limit: number = 10): Promise<BlockData[]> {
     try {
       const response = await axios.get(`${this.apiUrl}/cosmos/base/tendermint/v1beta1/blocks/latest`);
       const latestHeight = parseInt(response.data.block.header.height);
-      
       const blocks: BlockData[] = [];
       for (let i = 0; i < limit; i++) {
         try {
@@ -40,52 +36,36 @@ export class ChainAPI {
       return [];
     }
   }
-
   async getLatestTransactions(limit: number = 10): Promise<TransactionData[]> {
     try {
-      // Try to get transactions using tx.height event (works on most chains)
       const latestBlockResponse = await axios.get(
         `${this.apiUrl}/cosmos/base/tendermint/v1beta1/blocks/latest`,
         { timeout: 5000 }
       );
-      
       const latestHeight = parseInt(latestBlockResponse.data?.block?.header?.height || '0');
       if (!latestHeight) {
         return this.getTransactionsFromBlocks(limit);
       }
-
-      // Search for transactions using height range
       const searchHeight = latestHeight - 100; // Search last 100 blocks
-      
       try {
         const response = await axios.get(
           `${this.apiUrl}/cosmos/tx/v1beta1/txs?events=tx.height>${searchHeight}&pagination.limit=${limit}&order_by=2`,
           { timeout: 10000 }
         );
-        
         const txResponses = response.data?.tx_responses || [];
         const txs = response.data?.txs || [];
-        
         console.log(`Found ${txResponses.length} transactions from API using height query`);
-        
         if (txResponses.length === 0) {
           return this.getTransactionsFromBlocks(limit);
         }
-
         const transactions: TransactionData[] = [];
-        
         for (let i = 0; i < Math.min(txResponses.length, limit); i++) {
           const txResponse = txResponses[i];
           const tx = txs[i];
-          
-          // Get message type from first message
           const messageType = tx?.body?.messages?.[0]?.['@type'] || '';
           const action = messageType.split('.').pop() || 'Transaction';
-          
-          // Get fee
           const feeAmount = tx?.auth_info?.fee?.amount?.[0]?.amount || '0';
           const feeDenom = tx?.auth_info?.fee?.amount?.[0]?.denom || '';
-          
           transactions.push({
             hash: txResponse.txhash || `tx-${i}`,
             type: action,
@@ -95,60 +75,43 @@ export class ChainAPI {
             time: txResponse.timestamp || new Date().toISOString(),
           });
         }
-        
         return transactions;
       } catch (searchError) {
         console.error('Failed to fetch from txs endpoint with height query:', searchError);
         return this.getTransactionsFromBlocks(limit);
       }
-      
     } catch (error) {
       console.error('Failed to get latest block:', error);
       return this.getTransactionsFromBlocks(limit);
     }
   }
-
   private async getTransactionsFromBlocks(limit: number): Promise<TransactionData[]> {
     try {
-      // Get latest block height first
       const latestBlock = await axios.get(`${this.apiUrl}/cosmos/base/tendermint/v1beta1/blocks/latest`, {
         timeout: 5000
       });
-      
       const latestHeight = parseInt(latestBlock.data?.block?.header?.height || '0');
       if (!latestHeight) {
         return [];
       }
-
       console.log(`Fetching transactions from recent blocks starting at height ${latestHeight}...`);
-      
       const transactions: TransactionData[] = [];
-      
-      // Fetch last 20 blocks to increase chance of finding transactions
       const blocksToFetch = 20;
-      
       for (let i = 0; i < blocksToFetch; i++) {
         const currentHeight = latestHeight - i;
-        
         try {
-          // Get block with transactions
           const block = await axios.get(
             `${this.apiUrl}/cosmos/base/tendermint/v1beta1/blocks/${currentHeight}`,
             { timeout: 3000 }
           );
-          
           const blockData = block.data?.block;
           const blockTime = blockData?.header?.time || new Date().toISOString();
           const txsData = blockData?.data?.txs || [];
-          
           console.log(`Block ${currentHeight}: ${txsData.length} transactions`);
-          
           if (txsData.length > 0) {
             for (let j = 0; j < txsData.length && transactions.length < limit; j++) {
-              // Calculate proper transaction hash using SHA256
               const txBytes = Buffer.from(txsData[j], 'base64');
               const txHash = crypto.createHash('sha256').update(txBytes).digest('hex').toUpperCase();
-              
               transactions.push({
                 hash: txHash,
                 type: 'Transaction',
@@ -162,22 +125,17 @@ export class ChainAPI {
         } catch (err) {
           console.error(`Error fetching block ${currentHeight}`);
         }
-        
-        // Break early if we have enough transactions
         if (transactions.length >= limit) {
           break;
         }
       }
-
       console.log(`Found ${transactions.length} transactions`);
       return transactions.slice(0, limit);
-      
     } catch (error) {
       console.error('Transaction fetch from blocks failed:', error);
       return [];
     }
   }
-
   async getChainStats(): Promise<ChainStats> {
     try {
       const [stakingPool, supply, inflation, validators, latestBlock] = await Promise.all([
@@ -187,14 +145,12 @@ export class ChainAPI {
         axios.get(`${this.apiUrl}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED`).catch(() => null),
         axios.get(`${this.apiUrl}/cosmos/base/tendermint/v1beta1/blocks/latest`).catch(() => null),
       ]);
-
       const bondedTokens = stakingPool?.data?.pool?.bonded_tokens || '0';
       const unbondedTokens = stakingPool?.data?.pool?.not_bonded_tokens || '0';
       const totalSupply = supply?.data?.supply?.[0]?.amount || '0';
       const inflationRate = inflation?.data?.inflation || '0';
       const activeVals = validators?.data?.validators?.length || 0;
       const latestHeight = parseInt(latestBlock?.data?.block?.header?.height || '0');
-
       return {
         marketCap: '0',
         inflation: parseFloat(inflationRate).toFixed(2),
@@ -225,24 +181,18 @@ export class ChainAPI {
       };
     }
   }
-
   async getValidators(limit: number = 50): Promise<ValidatorData[]> {
     try {
-      // Fetch all validator statuses in parallel
       const [bondedResponse, unbondedResponse, unbondingResponse] = await Promise.all([
         axios.get(`${this.apiUrl}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=${limit}`).catch(() => ({ data: { validators: [] } })),
         axios.get(`${this.apiUrl}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_UNBONDED&pagination.limit=${limit}`).catch(() => ({ data: { validators: [] } })),
         axios.get(`${this.apiUrl}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_UNBONDING&pagination.limit=${limit}`).catch(() => ({ data: { validators: [] } }))
       ]);
-
-      // Combine all validators
       const allValidators = [
         ...(bondedResponse.data.validators || []),
         ...(unbondedResponse.data.validators || []),
         ...(unbondingResponse.data.validators || [])
       ];
-
-      // Map to ValidatorData format
       const validators = allValidators.map((val: any) => ({
         address: val.operator_address,
         moniker: val.description?.moniker || 'Unknown',
@@ -251,25 +201,16 @@ export class ChainAPI {
         status: val.status || 'BOND_STATUS_UNKNOWN',
         jailed: val.jailed || false
       }));
-
-      // Sort: Active validators by voting power (highest first), then inactive validators
       validators.sort((a, b) => {
         const aActive = a.status === 'BOND_STATUS_BONDED' && !a.jailed;
         const bActive = b.status === 'BOND_STATUS_BONDED' && !b.jailed;
-        
-        // Both active: sort by voting power descending
         if (aActive && bActive) {
           return parseInt(b.votingPower) - parseInt(a.votingPower);
         }
-        
-        // One active, one inactive: active comes first
         if (aActive && !bActive) return -1;
         if (!aActive && bActive) return 1;
-        
-        // Both inactive: sort by voting power descending
         return parseInt(b.votingPower) - parseInt(a.votingPower);
       });
-
       return validators;
     } catch (error) {
       console.error('Error fetching validators:', error);

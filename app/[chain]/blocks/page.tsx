@@ -26,7 +26,7 @@ export default function BlocksPage() {
   const blocksPerPage = 50;
 
   useEffect(() => {
-    // Use sessionStorage for instant load
+
     const cachedChains = sessionStorage.getItem('chains');
     
     if (cachedChains) {
@@ -52,11 +52,9 @@ export default function BlocksPage() {
     }
   }, [params]);
 
-  // Fetch blocks function
   const fetchBlocks = useCallback(async (showLoading = true) => {
     if (!selectedChain) return;
-    
-    // Try to show cached data immediately (even if stale)
+
     const cacheKey = getCacheKey('blocks', selectedChain.chain_name, `page${currentPage}`);
     const cachedData = getStaleCache<BlockData[]>(cacheKey);
     
@@ -84,12 +82,10 @@ export default function BlocksPage() {
     }
   }, [selectedChain, currentPage, blocksPerPage]);
 
-  // Initial load
   useEffect(() => {
     fetchBlocks(true);
   }, [fetchBlocks]);
 
-  // Auto refresh every 6 seconds (Cosmos block time)
   useEffect(() => {
     if (!selectedChain || currentPage !== 1) return; // Only auto-refresh on first page
     
@@ -155,3 +151,4 @@ export default function BlocksPage() {
     </div>
   );
 }
+

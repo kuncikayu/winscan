@@ -1,13 +1,10 @@
 'use client';
-
 import { TrendingUp, TrendingDown } from 'lucide-react';
-
 interface StatsCardProps {
   title: string;
   value: string;
   change?: number;
 }
-
 export default function StatsCard({ title, value, change }: StatsCardProps) {
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6">

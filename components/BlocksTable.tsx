@@ -1,5 +1,4 @@
 'use client';
-
 import { BlockData } from '@/types/chain';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -8,39 +7,31 @@ import ValidatorAvatar from '@/components/ValidatorAvatar';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
-
 interface BlocksTableProps {
   blocks: BlockData[];
   chainName: string;
   currentPage: number;
   onPageChange: (page: number) => void;
 }
-
 export default function BlocksTable({ blocks, chainName, currentPage, onPageChange }: BlocksTableProps) {
   const chainPath = chainName.toLowerCase().replace(/\s+/g, '-');
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(language, key);
   const [animatedBlocks, setAnimatedBlocks] = useState<Set<number>>(new Set());
-
-  // Detect new blocks and animate them
   useEffect(() => {
     if (blocks.length > 0) {
       const newBlocks = blocks.slice(0, 3).map(b => b.height); // Animate first 3 blocks
       const newSet = new Set(newBlocks);
       setAnimatedBlocks(newSet);
-      
-      // Remove animation after 2 seconds
       const timeout = setTimeout(() => {
         setAnimatedBlocks(new Set());
       }, 2000);
-      
       return () => clearTimeout(timeout);
     }
   }, [blocks]);
-
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl overflow-hidden">
-      {/* Table */}
+      {}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-[#0f0f0f] border-b border-gray-800">
@@ -122,8 +113,7 @@ export default function BlocksTable({ blocks, chainName, currentPage, onPageChan
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
+      {}
       {blocks.length > 0 && (
         <div className="flex items-center justify-between px-6 py-4 bg-[#0f0f0f] border-t border-gray-800">
           <button
@@ -134,14 +124,12 @@ export default function BlocksTable({ blocks, chainName, currentPage, onPageChan
             <ChevronLeft className="w-4 h-4" />
             {t('blocks.previous')}
           </button>
-          
           <div className="flex items-center gap-2">
             <span className="text-gray-400 text-sm">{t('blocks.page')}</span>
             <span className="px-3 py-1 bg-[#1a1a1a] border border-gray-700 rounded text-white text-sm font-medium">
               {currentPage}
             </span>
           </div>
-
           <button
             onClick={() => onPageChange(currentPage + 1)}
             className="flex items-center gap-1.5 px-4 py-2 bg-[#1a1a1a] border border-gray-700 rounded-lg text-sm text-gray-300 hover:bg-[#222] hover:border-gray-600 transition-all"

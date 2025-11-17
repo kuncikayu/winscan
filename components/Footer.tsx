@@ -6,7 +6,6 @@ export default function Footer() {
           <div className="text-gray-400 text-sm">
             © {new Date().getFullYear()} WinScan. Made with ❤️ for Cosmos ecosystem
           </div>
-          
           <div className="flex items-center gap-4">
             <a
               href="https://winsnip.xyz"
@@ -19,7 +18,6 @@ export default function Footer() {
               </svg>
               Website
             </a>
-            
             <a
               href="https://twitter.com/winsnip"
               target="_blank"
@@ -31,7 +29,6 @@ export default function Footer() {
               </svg>
               Twitter
             </a>
-            
             <a
               href="https://t.me/winsnip"
               target="_blank"
@@ -43,7 +40,6 @@ export default function Footer() {
               </svg>
               Telegram
             </a>
-            
             <a
               href="https://github.com/winsnip-official"
               target="_blank"

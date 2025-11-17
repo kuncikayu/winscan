@@ -1,23 +1,19 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { getValidatorAvatar } from '@/lib/keybaseUtils';
 import { Users } from 'lucide-react';
-
 interface ValidatorAvatarProps {
   identity?: string;
   moniker?: string; // Make optional
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showMoniker?: boolean;
 }
-
 const sizeClasses = {
   sm: 'w-8 h-8 text-xs',
   md: 'w-12 h-12 text-sm',
   lg: 'w-16 h-16 text-base',
   xl: 'w-24 h-24 text-xl',
 };
-
 export default function ValidatorAvatar({ 
   identity, 
   moniker = 'Unknown Validator', // Default value
@@ -27,15 +23,12 @@ export default function ValidatorAvatar({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-
   useEffect(() => {
     if (!identity) {
       setLoading(false);
       return;
     }
-
     let mounted = true;
-
     const loadAvatar = async () => {
       try {
         const url = await getValidatorAvatar(identity);
@@ -51,45 +44,31 @@ export default function ValidatorAvatar({
         }
       }
     };
-
     loadAvatar();
-
     return () => {
       mounted = false;
     };
   }, [identity]);
-
   const getInitials = (name?: string) => {
-    // Safety check: return default if name is undefined, null, or empty
     if (!name || typeof name !== 'string' || name.trim() === '') {
       return 'V';
     }
-    
     const trimmedName = name.trim();
     const words = trimmedName.split(' ');
-    
     if (words.length >= 2) {
-      // Get first letter of first two words
       const first = words[0][0] || '';
       const second = words[1][0] || '';
       return (first + second).toUpperCase() || 'V';
     }
-    
-    // Single word or short name
     return trimmedName.slice(0, 2).toUpperCase() || 'V';
   };
-
   const renderAvatar = () => {
     const sizeClass = sizeClasses[size];
-
-    // Show loading skeleton
     if (loading && identity) {
       return (
         <div className={`${sizeClass} rounded-full bg-gray-700 animate-pulse`} />
       );
     }
-
-    // Show Keybase avatar if available
     if (avatarUrl && !error) {
       return (
         <img
@@ -100,8 +79,6 @@ export default function ValidatorAvatar({
         />
       );
     }
-
-    // Fallback: Show initials with gradient background
     return (
       <div 
         className={`${sizeClass} rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center font-bold text-white`}
@@ -110,7 +87,6 @@ export default function ValidatorAvatar({
       </div>
     );
   };
-
   if (showMoniker) {
     return (
       <div className="flex items-center gap-3">
@@ -126,11 +102,10 @@ export default function ValidatorAvatar({
       </div>
     );
   }
-
   return (
     <div className="relative group">
       {renderAvatar()}
-      {/* Tooltip on hover */}
+      {}
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
         {moniker}
       </div>

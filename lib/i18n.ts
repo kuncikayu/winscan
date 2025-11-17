@@ -1,5 +1,4 @@
 export type Language = 'en' | 'id' | 'zh' | 'ja' | 'hi' | 'ru' | 'vi';
-
 import { overviewTranslations } from './translations-overview';
 import { blocksTranslations } from './translations-blocks';
 import { transactionsTranslations } from './translations-transactions';
@@ -16,7 +15,6 @@ import { blockDetailTranslations } from './translations-block-detail';
 import { transactionDetailTranslations } from './translations-transaction-detail';
 import { assetDetailTranslations } from './translations-asset-detail';
 import { accountDetailTranslations } from './translations-account-detail';
-
 export const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'id', name: 'Indonesia', flag: '🇮🇩' },
@@ -26,9 +24,7 @@ export const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'ru', name: 'Русский', flag: '🇷🇺' },
   { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
 ];
-
 type TranslationKeys = {
-  // Homepage
   'home.title': string;
   'home.subtitle': string;
   'home.live': string;
@@ -53,7 +49,6 @@ type TranslationKeys = {
   'home.multiChain': string;
   'home.liveStatus': string;
   'home.testStatus': string;
-  // Sidebar Menu
   'menu.overview': string;
   'menu.blocks': string;
   'menu.transactions': string;
@@ -66,7 +61,6 @@ type TranslationKeys = {
   'menu.consensus': string;
   'menu.statesync': string;
   'menu.parameters': string;
-  // Common
   'common.height': string;
   'common.hash': string;
   'common.time': string;
@@ -91,7 +85,6 @@ type TranslationKeys = {
   'common.show': string;
   'common.entries': string;
 };
-
 export const translations: Record<Language, TranslationKeys> = {
   en: {
     'home.title': 'WinScan Explorer',
@@ -521,14 +514,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.entries': 'mục',
   },
 };
-
 export function getTranslation(lang: Language, key: string): string {
-  // Check main translations first
   const langTranslations = translations[lang];
   const enTranslations = translations['en'];
   let result = (langTranslations[key as keyof TranslationKeys] || enTranslations[key as keyof TranslationKeys]) as string;
-  
-  // If not found, check extended translations
   if (!result) {
   const extendedTranslations = [
     overviewTranslations,
@@ -553,8 +542,6 @@ export function getTranslation(lang: Language, key: string): string {
         break;
       }
     }
-    
-    // Fallback to English in extended translations
     if (!result) {
       for (const translations of extendedTranslations) {
         if (translations['en'] && (translations['en'] as any)[key]) {
@@ -564,10 +551,8 @@ export function getTranslation(lang: Language, key: string): string {
       }
     }
   }
-  
   return result || key;
 }
-
 export function useTranslation(lang: Language) {
   return (key: string) => getTranslation(lang, key);
 }

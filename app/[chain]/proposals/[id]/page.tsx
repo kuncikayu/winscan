@@ -47,7 +47,7 @@ export default function ProposalDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Use sessionStorage for instant load
+
     const cachedChains = sessionStorage.getItem('chains');
     
     if (cachedChains) {
@@ -390,3 +390,4 @@ export default function ProposalDetailPage() {
     </div>
   );
 }
+

@@ -12,6 +12,7 @@ import { getCacheKey, setCache, getStaleCache } from '@/lib/cacheUtils';
 import { fetchApi } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
+import { convertValidatorToAccountAddress } from '@/lib/addressConverter';
 
 interface ValidatorDetail {
   address: string;
@@ -118,6 +119,11 @@ export default function ValidatorDetailPage() {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      let accountAddress = validator?.accountAddress;
+      if (!accountAddress && params.address) {
+        accountAddress = convertValidatorToAccountAddress(params.address as string);
+      }
       
       const [validatorRes, delegationsRes, txRes] = await Promise.allSettled([
         fetchApi(`/api/validator?chain=${selectedChain.chain_id || selectedChain.chain_name}&address=${params.address}`, { 
@@ -126,7 +132,8 @@ export default function ValidatorDetailPage() {
         fetchApi(`/api/validator/delegations?chain=${selectedChain.chain_name}&address=${params.address}`, { 
           signal: controller.signal 
         }),
-        fetchApi(`/api/validator/transactions?chain=${selectedChain.chain_name}&address=${params.address}`, { 
+
+        fetchApi(`/api/validator/transactions?chain=${selectedChain.chain_name}&address=${accountAddress || params.address}&limit=1000`, { 
           signal: controller.signal 
         })
       ]);
@@ -153,7 +160,7 @@ export default function ValidatorDetailPage() {
       
       if (txRes.status === 'fulfilled' && txRes.value.ok) {
         const txData = await txRes.value.json();
-        // Backend returns array directly now (not wrapped in { transactions: [] })
+
         setTransactions(Array.isArray(txData) ? txData : (txData.transactions || []));
       }
     } catch (err) {
@@ -330,7 +337,7 @@ export default function ValidatorDetailPage() {
                       <button 
                         onClick={() => {
                           navigator.clipboard.writeText(validator.address);
-                          // Optional: Show toast notification
+
                         }}
                         className="text-gray-400 hover:text-blue-500 transition-all duration-200 flex-shrink-0 hover:scale-110 active:scale-95"
                         title="Copy address"
@@ -342,10 +349,12 @@ export default function ValidatorDetailPage() {
                   <div>
                     <p className="text-gray-400 text-xs font-medium mb-1.5">{t('validatorDetail.selfDelegateAddress')}</p>
                     <div className="flex items-center gap-2 bg-[#0a0a0a] rounded px-3 py-2 hover:bg-[#0a0a0a]/80 transition-all duration-200 group">
-                      <p className="text-white font-mono text-xs break-all flex-1">{validator?.accountAddress || validator?.address?.replace('valoper', '') || 'N/A'}</p>
+                      <p className="text-white font-mono text-xs break-all flex-1">
+                        {validator?.accountAddress || (validator?.address ? convertValidatorToAccountAddress(validator.address) : 'Not Available')}
+                      </p>
                       <button 
                         onClick={() => {
-                          const addr = validator?.accountAddress || validator?.address?.replace('valoper', '');
+                          const addr = validator?.accountAddress || (validator?.address ? convertValidatorToAccountAddress(validator.address) : '');
                           if (addr) {
                             navigator.clipboard.writeText(addr);
                           }
@@ -848,3 +857,4 @@ export default function ValidatorDetailPage() {
     </div>
   );
 }
+

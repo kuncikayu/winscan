@@ -222,3 +222,4 @@ export default function ValidatorsPage() {
     </div>
   );
 }
+

@@ -57,7 +57,7 @@ export default function AssetDetailPage() {
       const response = await fetch('/chains.json');
       const data = await response.json();
       setChains(data);
-      // Find chain based on URL parameter, not hardcoded
+
       const chain = data.find((c: ChainData) => 
         c.chain_name.toLowerCase().replace(/\s+/g, '-') === chainName.toLowerCase()
       ) || data[0];
@@ -100,12 +100,10 @@ export default function AssetDetailPage() {
     try {
       const amount = BigInt(supply);
       const divisor = BigInt(10 ** exponent);
-      
-      // Calculate whole and fractional parts
+
       const wholePart = amount / divisor;
       const remainder = amount % divisor;
-      
-      // Format with proper decimal places
+
       let displayAmount: string;
       
       if (exponent > 0) {
@@ -414,3 +412,4 @@ export default function AssetDetailPage() {
     </div>
   );
 }
+

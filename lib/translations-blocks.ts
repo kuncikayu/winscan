@@ -1,4 +1,3 @@
-// Extended translations for Blocks page
 export const blocksTranslations = {
   en: {
     'blocks.title': 'Blocks',
@@ -15,7 +14,6 @@ export const blocksTranslations = {
     'blocks.page': 'Page',
     'blocks.of': 'of',
   },
-  
   id: {
     'blocks.title': 'Blok',
     'blocks.subtitle': 'Lihat semua blok di',
@@ -31,7 +29,6 @@ export const blocksTranslations = {
     'blocks.page': 'Halaman',
     'blocks.of': 'dari',
   },
-  
   zh: {
     'blocks.title': '区块',
     'blocks.subtitle': '查看所有区块',
@@ -47,7 +44,6 @@ export const blocksTranslations = {
     'blocks.page': '第',
     'blocks.of': '页，共',
   },
-  
   ja: {
     'blocks.title': 'ブロック',
     'blocks.subtitle': 'すべてのブロックを表示',
@@ -63,7 +59,6 @@ export const blocksTranslations = {
     'blocks.page': 'ページ',
     'blocks.of': '/',
   },
-  
   hi: {
     'blocks.title': 'ब्लॉक',
     'blocks.subtitle': 'सभी ब्लॉक देखें',
@@ -79,7 +74,6 @@ export const blocksTranslations = {
     'blocks.page': 'पृष्ठ',
     'blocks.of': 'में से',
   },
-  
   ru: {
     'blocks.title': 'Блоки',
     'blocks.subtitle': 'Просмотр всех блоков в сети',
@@ -95,7 +89,6 @@ export const blocksTranslations = {
     'blocks.page': 'Страница',
     'blocks.of': 'из',
   },
-  
   vi: {
     'blocks.title': 'Khối',
     'blocks.subtitle': 'Xem tất cả khối trên',

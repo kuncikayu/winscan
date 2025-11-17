@@ -38,7 +38,7 @@ export default function ChainOverviewPage() {
   });
 
   useEffect(() => {
-    // Use sessionStorage for chains (instant load)
+
     const cachedChains = sessionStorage.getItem('chains');
     
     if (cachedChains) {
@@ -68,8 +68,7 @@ export default function ChainOverviewPage() {
     if (selectedChain) {
       const chainKey = `chain_data_${selectedChain.chain_name}`;
       const cacheTimeout = 30000; // 30 seconds
-      
-      // Check if we have ANY cached data - if yes, remove loading immediately
+
       const hasCachedNetwork = sessionStorage.getItem(`${chainKey}_network`);
       const hasCachedBlocks = sessionStorage.getItem(`${chainKey}_blocks`);
       const hasCachedValidators = sessionStorage.getItem(`${chainKey}_validators`);
@@ -77,8 +76,7 @@ export default function ChainOverviewPage() {
       
       if (hasCachedNetwork || hasCachedBlocks || hasCachedValidators) {
         setLoading(false); // Remove loading immediately if we have cache
-        
-        // Preload cached data immediately for instant display
+
         try {
           if (hasCachedNetwork) {
             const { data } = JSON.parse(hasCachedNetwork);
@@ -120,8 +118,7 @@ export default function ChainOverviewPage() {
         validators: false,
         transactions: false
       });
-      
-      // Helper: Get from cache
+
       const getCache = (key: string) => {
         try {
           const cached = sessionStorage.getItem(key);
@@ -133,8 +130,7 @@ export default function ChainOverviewPage() {
           return null;
         }
       };
-      
-      // Helper: Set cache
+
       const setCache = (key: string, data: any) => {
         try {
           sessionStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
@@ -142,8 +138,7 @@ export default function ChainOverviewPage() {
           console.warn('Cache error:', e);
         }
       };
-      
-      // Helper: Fetch with retry
+
       const fetchWithRetry = async (url: string, retries = 2) => {
         for (let i = 0; i <= retries; i++) {
           try {
@@ -161,8 +156,7 @@ export default function ChainOverviewPage() {
           }
         }
       };
-      
-      // 1. Load network data (fastest)
+
       const loadNetwork = async () => {
         try {
           const cached = getCache(`${chainKey}_network`);
@@ -191,8 +185,7 @@ export default function ChainOverviewPage() {
           setDataLoaded(prev => ({ ...prev, network: true }));
         }
       };
-      
-      // 2. Load blocks (for charts)
+
       const loadBlocks = async () => {
         try {
           const cached = getCache(`${chainKey}_blocks`);
@@ -211,8 +204,7 @@ export default function ChainOverviewPage() {
           setDataLoaded(prev => ({ ...prev, blocks: true }));
         }
       };
-      
-      // 3. Load validators (for charts)
+
       const loadValidators = async () => {
         try {
           const cached = getCache(`${chainKey}_validators`);
@@ -238,8 +230,7 @@ export default function ChainOverviewPage() {
           setDataLoaded(prev => ({ ...prev, validators: true }));
         }
       };
-      
-      // 4. Load transactions (less priority)
+
       const loadTransactions = async () => {
         try {
           const cached = getCache(`${chainKey}_transactions`);
@@ -257,10 +248,9 @@ export default function ChainOverviewPage() {
           setDataLoaded(prev => ({ ...prev, transactions: true }));
         }
       };
-      
-      // Progressive loading
+
       (async () => {
-        // Set maximum timeout to force loading false
+
         const timeoutId = setTimeout(() => {
           console.warn('Loading timeout reached, forcing loading = false');
           setLoading(false);
@@ -283,7 +273,6 @@ export default function ChainOverviewPage() {
     }
   }, [selectedChain]);
 
-  // Auto refresh blocks and transactions every 10 seconds
   useEffect(() => {
     if (!selectedChain) return;
     
@@ -450,3 +439,4 @@ export default function ChainOverviewPage() {
     </div>
   );
 }
+

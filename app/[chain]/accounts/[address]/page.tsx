@@ -45,7 +45,7 @@ export default function AccountPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Use sessionStorage for chains
+
     const cachedChains = sessionStorage.getItem('chains');
     
     if (cachedChains) {
@@ -74,61 +74,47 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (selectedChain && params?.address) {
-      // Check cache first
+
       const cacheKey = `account_${selectedChain.chain_name}_${params.address}`;
       const cached = sessionStorage.getItem(cacheKey);
       
       if (cached) {
         const { accountData, txData, timestamp } = JSON.parse(cached);
         setAccount(accountData);
-        // Sort transactions by height (newest first)
+
         const sortedTxs = Array.isArray(txData) 
           ? [...txData].sort((a, b) => (b.height || 0) - (a.height || 0))
           : [];
         setTransactions(sortedTxs);
         setLoading(false);
-        
-        // Skip fetch if cache is fresh (< 30s)
+
         if (Date.now() - timestamp < 30000) {
           return;
         }
       } else {
         setLoading(true);
       }
-      
-      // Fetch with timeout
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
-      Promise.all([
-        fetch(`/api/accounts?chain=${selectedChain.chain_id || selectedChain.chain_name}&address=${params.address}`, { signal: controller.signal })
-          .then(r => r.json())
-          .catch(err => {
-            console.error('Error fetching account:', err);
-            return null;
-          }),
-        fetch(`/api/transactions?chain=${selectedChain.chain_id || selectedChain.chain_name}&address=${params.address}&limit=100`, { signal: controller.signal })
-          .then(r => r.json())
-          .catch(err => {
-            console.error('Error fetching transactions:', err);
-            return [];
-          }),
-      ])
-        .then(([accountData, txData]) => {
+      fetch(`/api/accounts?chain=${selectedChain.chain_id || selectedChain.chain_name}&address=${params.address}`, { signal: controller.signal })
+        .then(r => r.json())
+        .then((accountData) => {
           if (accountData) {
             setAccount(accountData);
+
+            const txs = accountData.transactions || [];
+            const sortedTxs = Array.isArray(txs) 
+              ? [...txs].sort((a: any, b: any) => (b.height || 0) - (a.height || 0))
+              : [];
+            setTransactions(sortedTxs);
           }
-          // Sort transactions by height (newest first)
-          const sortedTxs = Array.isArray(txData) 
-            ? [...txData].sort((a, b) => (b.height || 0) - (a.height || 0))
-            : [];
-          setTransactions(sortedTxs);
           setLoading(false);
-          
-          // Cache result
+
           sessionStorage.setItem(cacheKey, JSON.stringify({
             accountData: accountData || null,
-            txData: sortedTxs,
+            txData: accountData?.transactions || [],
             timestamp: Date.now()
           }));
         })
@@ -374,3 +360,4 @@ export default function AccountPage() {
     </div>
   );
 }
+

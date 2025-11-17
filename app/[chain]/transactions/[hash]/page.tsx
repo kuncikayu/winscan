@@ -729,3 +729,4 @@ export default function TransactionDetailPage() {
     </div>
   );
 }
+

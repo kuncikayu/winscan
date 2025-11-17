@@ -1,25 +1,20 @@
 'use client';
-
 interface TokenomicsChartProps {
   bonded: string;
   unbonded: string;
 }
-
 export default function TokenomicsChart({ bonded, unbonded }: TokenomicsChartProps) {
   const bondedNum = parseFloat(bonded);
   const unbondedNum = parseFloat(unbonded);
   const total = bondedNum + unbondedNum;
-  
   const bondedPercent = total > 0 ? (bondedNum / total) * 100 : 0;
   const unbondedPercent = total > 0 ? (unbondedNum / total) * 100 : 0;
-
   const formatNumber = (num: number) => {
     if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
     if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
     if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
     return num.toFixed(2);
   };
-
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6">
       <div className="flex items-center justify-center mb-6">
@@ -63,7 +58,6 @@ export default function TokenomicsChart({ bonded, unbonded }: TokenomicsChartPro
           </div>
         </div>
       </div>
-      
       <div className="grid grid-cols-2 gap-4">
         <div className="text-center">
           <div className="flex items-center justify-center mb-2">

@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChainData } from '@/types/chain';
@@ -10,20 +9,15 @@ import { getTranslation } from '@/lib/i18n';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import WinScanLogo from '@/components/WinScanLogo';
 import Footer from '@/components/Footer';
-
 export default function Home() {
   const [chains, setChains] = useState<ChainData[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const { language } = useLanguage();
-
   const t = (key: string) => getTranslation(language, key);
-
   useEffect(() => {
     setMounted(true);
-    
     const minLoadTime = new Promise(resolve => setTimeout(resolve, 1500));
-    
     Promise.all([
       fetchApi('/api/chains').then(res => res.json()),
       minLoadTime
@@ -37,7 +31,6 @@ export default function Home() {
         setLoading(false);
       });
   }, []);
-
   const getPrettyName = (chainName: string) => {
     return chainName
       .replace(/-mainnet$/i, '')
@@ -47,23 +40,18 @@ export default function Home() {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
-
   const mainnets = chains.filter(c => 
     c.chain_name.toLowerCase().includes('mainnet') || 
     (!c.chain_name.toLowerCase().includes('test'))
   );
-  
   const testnets = chains.filter(c => 
     c.chain_name.toLowerCase().includes('test') && 
     !c.chain_name.toLowerCase().includes('mainnet')
   );
-
   if (!mounted) return null;
-
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
-
       <header className="border-b border-gray-800/30 backdrop-blur-xl bg-black/40 relative z-50">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
@@ -76,7 +64,6 @@ export default function Home() {
                 <p className="text-gray-500 text-sm">{t('home.subtitle')}</p>
               </div>
             </div>
-            
             <div className="flex items-center gap-3">
               {!loading && chains.length > 0 && (
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-900/50 border border-gray-800 rounded-lg">
@@ -89,7 +76,6 @@ export default function Home() {
           </div>
         </div>
       </header>
-
       <main className="flex-1 container mx-auto px-6 py-12 relative z-10">
         {loading ? (
           <div className="flex flex-col items-center justify-center min-h-[500px]">
@@ -106,7 +92,6 @@ export default function Home() {
                 </div>
                 <p className="text-3xl font-bold text-white">{chains.length}</p>
               </div>
-
               <div className="bg-gray-900/30 border border-gray-800/50 rounded-xl p-6 backdrop-blur-sm">
                 <div className="flex items-center gap-3 mb-2">
                   <TrendingUp className="w-5 h-5 text-green-500" />
@@ -114,7 +99,6 @@ export default function Home() {
                 </div>
                 <p className="text-3xl font-bold text-white">{mainnets.length}</p>
               </div>
-
               <div className="bg-gray-900/30 border border-gray-800/50 rounded-xl p-6 backdrop-blur-sm">
                 <div className="flex items-center gap-3 mb-2">
                   <Users className="w-5 h-5 text-purple-500" />
@@ -123,7 +107,6 @@ export default function Home() {
                 <p className="text-3xl font-bold text-white">{testnets.length}</p>
               </div>
             </div>
-
             <div className="space-y-10">
               {mainnets.length > 0 && (
                 <div>
@@ -138,7 +121,6 @@ export default function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {mainnets.map((chain) => {
                       const chainPath = chain.chain_name.toLowerCase().replace(/\s+/g, '-');
-                      
                       return (
                         <Link
                           key={chain.chain_name}
@@ -162,7 +144,6 @@ export default function Home() {
                               <p className="text-sm text-gray-500 font-mono">{chain.assets[0]?.symbol || 'N/A'}</p>
                             </div>
                           </div>
-                          
                           <div className="flex items-center justify-between pt-3 border-t border-gray-800/50">
                             <span className="text-xs text-gray-500">Prefix: <span className="text-gray-400 font-mono">{chain.addr_prefix}</span></span>
                             <div className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">→</div>
@@ -173,7 +154,6 @@ export default function Home() {
                   </div>
                 </div>
               )}
-
               {testnets.length > 0 && (
                 <div>
                   <div className="flex items-center gap-3 mb-6">
@@ -187,7 +167,6 @@ export default function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {testnets.map((chain) => {
                       const chainPath = chain.chain_name.toLowerCase().replace(/\s+/g, '-');
-                      
                       return (
                         <Link
                           key={chain.chain_name}
@@ -211,7 +190,6 @@ export default function Home() {
                               <p className="text-sm text-gray-500 font-mono">{chain.assets[0]?.symbol || 'N/A'}</p>
                             </div>
                           </div>
-                          
                           <div className="flex items-center justify-between pt-3 border-t border-gray-800/50">
                             <span className="text-xs text-gray-500">Prefix: <span className="text-gray-400 font-mono">{chain.addr_prefix}</span></span>
                             <div className="text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity">→</div>
@@ -222,7 +200,6 @@ export default function Home() {
                   </div>
                 </div>
               )}
-
               {chains.length === 0 && !loading && (
                 <div className="text-center py-16">
                   <Activity className="w-16 h-16 text-gray-700 mx-auto mb-4" />
@@ -240,8 +217,9 @@ export default function Home() {
           </>
         )}
       </main>
-
       <Footer />
     </div>
   );
 }
+
+

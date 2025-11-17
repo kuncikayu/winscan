@@ -1,12 +1,10 @@
 'use client';
-
 import { TransactionData, ChainAsset } from '@/types/chain';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, CheckCircle, XCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
-
 interface TransactionsTableProps {
   transactions: TransactionData[];
   chainName: string;
@@ -14,7 +12,6 @@ interface TransactionsTableProps {
   currentPage: number;
   onPageChange: (page: number) => void;
 }
-
 export default function TransactionsTable({ 
   transactions, 
   chainName, 
@@ -25,24 +22,19 @@ export default function TransactionsTable({
   const chainPath = chainName.toLowerCase().replace(/\s+/g, '-');
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(language, key);
-
-  // Ensure transactions is always an array
   const safeTransactions = Array.isArray(transactions) ? transactions : [];
-
   const formatFee = (fee: string) => {
     if (!asset) return fee;
     const feeNum = parseFloat(fee) / Math.pow(10, Number(asset.exponent));
     return `${feeNum.toFixed(6)} ${asset.symbol}`;
   };
-
   const getTypeShortName = (type: string) => {
     const parts = type.split('.');
     return parts[parts.length - 1] || type;
   };
-
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg overflow-hidden">
-      {/* Table */}
+      {}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-[#0f0f0f] border-b border-gray-800">
@@ -120,8 +112,7 @@ export default function TransactionsTable({
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
+      {}
       {transactions.length > 0 && (
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-800">
           <button
@@ -132,11 +123,9 @@ export default function TransactionsTable({
             <ChevronLeft className="w-4 h-4 mr-1" />
             {t('transactions.previous')}
           </button>
-          
           <span className="text-gray-400 text-sm">
             {t('transactions.page')} {currentPage}
           </span>
-
           <button
             onClick={() => onPageChange(currentPage + 1)}
             className="flex items-center px-4 py-2 bg-[#0f0f0f] border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"

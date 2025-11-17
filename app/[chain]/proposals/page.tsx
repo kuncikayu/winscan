@@ -96,7 +96,7 @@ export default function ProposalsPage() {
           submitTime: p.submit_time || p.submitTime,
           votingStartTime: p.voting_start_time || p.votingStartTime,
           votingEndTime: p.voting_end_time || p.votingEndTime,
-          // Support both v1beta1 and v1 tally formats
+
           yesVotes: p.final_tally_result?.yes || p.final_tally_result?.yes_count || p.yesVotes || '0',
           noVotes: p.final_tally_result?.no || p.final_tally_result?.no_count || p.noVotes || '0',
           abstainVotes: p.final_tally_result?.abstain || p.final_tally_result?.abstain_count || p.abstainVotes || '0',
@@ -126,7 +126,6 @@ export default function ProposalsPage() {
     return true;
   });
 
-  // Calculate statistics
   const stats = {
     total: proposals.length,
     voting: proposals.filter(p => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD').length,
@@ -312,3 +311,4 @@ export default function ProposalsPage() {
     </div>
   );
 }
+

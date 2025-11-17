@@ -1,5 +1,4 @@
 'use client';
-
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -24,27 +23,22 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ChainData } from '@/types/chain';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
-
 interface SidebarProps {
   selectedChain: ChainData | null;
 }
-
 interface MenuItem {
   name: string;
   translationKey: string;
   path: string;
   icon: React.ReactNode;
 }
-
 export default function Sidebar({ selectedChain }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { language } = useLanguage();
-  
   const t = (key: string) => getTranslation(language, key);
-  
   const chainPath = useMemo(() => {
     const pathParts = pathname.split('/').filter(Boolean);
     if (pathParts.length > 0) {
@@ -52,7 +46,6 @@ export default function Sidebar({ selectedChain }: SidebarProps) {
     }
     return selectedChain ? `/${selectedChain.chain_name.toLowerCase().replace(/\s+/g, '-')}` : '';
   }, [pathname, selectedChain]);
-
   const menuItems: MenuItem[] = useMemo(() => [
     { name: 'Overview', translationKey: 'menu.overview', path: chainPath || '/', icon: <Home className="w-5 h-5" /> },
     { name: 'Blocks', translationKey: 'menu.blocks', path: `${chainPath}/blocks`, icon: <Box className="w-5 h-5" /> },
@@ -67,50 +60,39 @@ export default function Sidebar({ selectedChain }: SidebarProps) {
     { name: 'State Sync', translationKey: 'menu.statesync', path: `${chainPath}/statesync`, icon: <RefreshCw className="w-5 h-5" /> },
     { name: 'Parameters', translationKey: 'menu.parameters', path: `${chainPath}/parameters`, icon: <Settings className="w-5 h-5" /> },
   ], [chainPath]);
-
-  // Prefetch all pages on mount for instant navigation
   useEffect(() => {
     menuItems.forEach(item => {
       router.prefetch(item.path);
     });
   }, [menuItems, router]);
-
   const handleCollapse = useCallback(() => {
     setCollapsed(prev => !prev);
-    // Save state to localStorage
     localStorage.setItem('sidebar-collapsed', String(!collapsed));
   }, [collapsed]);
-
   const handleMobileToggle = useCallback(() => {
     setMobileOpen(prev => !prev);
   }, []);
-
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
   }, []);
-
   useEffect(() => {
     const savedState = localStorage.getItem('sidebar-collapsed');
     if (savedState === 'true') {
       setCollapsed(true);
     }
   }, []);
-
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
-
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setMobileOpen(false);
       }
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
   return (
     <>
       <button
@@ -120,21 +102,19 @@ export default function Sidebar({ selectedChain }: SidebarProps) {
       >
         {mobileOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
       </button>
-
       {mobileOpen && (
         <div 
           className="md:hidden fixed inset-0 bg-black/60 z-20 animate-fade-in backdrop-blur-sm"
           onClick={closeMobile}
         />
       )}
-
       <aside
         className={`fixed left-0 top-0 h-full bg-[#0f0f0f] border-r border-gray-800 transition-all duration-300 ease-in-out z-30 flex flex-col
           ${collapsed ? 'w-16' : 'w-64'} 
           ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
           max-md:w-64`}
       >
-        {/* Logo / Header */}
+        {}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-800 flex-shrink-0">
           {!collapsed && selectedChain && (
             <div className="flex items-center space-x-3 animate-fade-in">
@@ -158,7 +138,6 @@ export default function Sidebar({ selectedChain }: SidebarProps) {
             />
           )}
         </div>
-
         <nav className="py-4 overflow-y-auto flex-1 overscroll-contain">
           {menuItems.map((item) => {
             const isActive = pathname === item.path;
@@ -186,7 +165,6 @@ export default function Sidebar({ selectedChain }: SidebarProps) {
             );
           })}
         </nav>
-
         <div className="hidden md:block p-4 border-t border-gray-800 flex-shrink-0">
           <button
             onClick={handleCollapse}
@@ -204,7 +182,6 @@ export default function Sidebar({ selectedChain }: SidebarProps) {
           </button>
         </div>
       </aside>
-
       <div className={`hidden md:block ${collapsed ? 'w-16' : 'w-64'} flex-shrink-0 transition-all duration-300`} />
     </>
   );

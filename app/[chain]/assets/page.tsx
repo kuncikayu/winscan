@@ -293,7 +293,7 @@ export default function AssetsPage() {
 
   const filteredAssets = assets
     .filter(asset => {
-      // Filter by type
+
       if (filterType === 'native' && !isNativeAsset(asset)) return false;
       if (filterType === 'tokens' && isNativeAsset(asset)) return false;
       
@@ -648,3 +648,4 @@ export default function AssetsPage() {
     </div>
   );
 }
+

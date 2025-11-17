@@ -48,7 +48,6 @@ export function useRPCData<T>(
   useEffect(() => {
     fetchData();
 
-    // Setup refetch interval if specified
     if (refetchInterval && enabled) {
       const interval = setInterval(fetchData, refetchInterval);
       return () => clearInterval(interval);
@@ -63,9 +62,6 @@ export function useRPCData<T>(
   return { data, loading, error, refetch };
 }
 
-/**
- * Hook untuk fetch validators dengan automatic caching
- */
 export function useValidators(rpcUrls: string[], status: string = 'BOND_STATUS_BONDED') {
   return useRPCData(
     rpcUrls,
@@ -75,9 +71,6 @@ export function useValidators(rpcUrls: string[], status: string = 'BOND_STATUS_B
   );
 }
 
-/**
- * Hook untuk fetch single validator
- */
 export function useValidator(rpcUrls: string[], address: string) {
   return useRPCData(
     rpcUrls,
@@ -87,9 +80,6 @@ export function useValidator(rpcUrls: string[], address: string) {
   );
 }
 
-/**
- * Hook untuk fetch latest block
- */
 export function useLatestBlock(rpcUrls: string[]) {
   return useRPCData(
     rpcUrls,

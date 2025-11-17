@@ -3,7 +3,6 @@ interface WinscanLogoProps {
   animated?: boolean;
   className?: string;
 }
-
 export default function WinscanLogo({ size = 'md', animated = false, className = '' }: WinscanLogoProps) {
   const sizes = {
     sm: 'w-8 h-8',
@@ -11,7 +10,6 @@ export default function WinscanLogo({ size = 'md', animated = false, className =
     lg: 'w-16 h-16',
     xl: 'w-24 h-24',
   };
-
   return (
     <div className={`${sizes[size]} ${className} relative flex items-center justify-center`}>
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
@@ -30,7 +28,6 @@ export default function WinscanLogo({ size = 'md', animated = false, className =
             <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" />
           </linearGradient>
         </defs>
-
         <circle 
           cx="50" 
           cy="50" 
@@ -40,7 +37,6 @@ export default function WinscanLogo({ size = 'md', animated = false, className =
           strokeWidth="1"
           className={animated ? 'animate-pulse' : ''}
         />
-
         <g transform="translate(50, 50)">
           <path
             d="M -20 -15 L -15 10 L -10 -5 L -5 10"
@@ -61,7 +57,6 @@ export default function WinscanLogo({ size = 'md', animated = false, className =
             className={animated ? 'animate-pulse' : ''}
           />
         </g>
-
         <g opacity="0.6">
           <line 
             x1="25" 
@@ -96,14 +91,12 @@ export default function WinscanLogo({ size = 'md', animated = false, className =
             style={{ animationDelay: '0.4s' }}
           />
         </g>
-
         <g stroke="#3b82f6" strokeWidth="2" opacity="0.4" strokeLinecap="round">
           <path d="M 15 25 L 15 15 L 25 15" />
           <path d="M 75 15 L 85 15 L 85 25" />
           <path d="M 15 75 L 15 85 L 25 85" />
           <path d="M 75 85 L 85 85 L 85 75" />
         </g>
-
         <circle 
           cx="50" 
           cy="75" 
@@ -121,7 +114,6 @@ export default function WinscanLogo({ size = 'md', animated = false, className =
           )}
         </circle>
       </svg>
-      
       {animated && (
         <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
       )}

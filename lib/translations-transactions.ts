@@ -1,4 +1,3 @@
-// Extended translations for Transactions page
 export const transactionsTranslations = {
   en: {
     'transactions.title': 'Transactions',
@@ -17,7 +16,6 @@ export const transactionsTranslations = {
     'transactions.next': 'Next',
     'transactions.page': 'Page',
   },
-  
   id: {
     'transactions.title': 'Transaksi',
     'transactions.subtitle': 'Transaksi terbaru di',
@@ -35,7 +33,6 @@ export const transactionsTranslations = {
     'transactions.next': 'Selanjutnya',
     'transactions.page': 'Halaman',
   },
-  
   zh: {
     'transactions.title': '交易',
     'transactions.subtitle': '最新交易',
@@ -53,7 +50,6 @@ export const transactionsTranslations = {
     'transactions.next': '下一页',
     'transactions.page': '第',
   },
-  
   ja: {
     'transactions.title': 'トランザクション',
     'transactions.subtitle': '最新のトランザクション',
@@ -71,7 +67,6 @@ export const transactionsTranslations = {
     'transactions.next': '次へ',
     'transactions.page': 'ページ',
   },
-  
   hi: {
     'transactions.title': 'लेनदेन',
     'transactions.subtitle': 'नवीनतम लेनदेन',
@@ -89,7 +84,6 @@ export const transactionsTranslations = {
     'transactions.next': 'अगला',
     'transactions.page': 'पृष्ठ',
   },
-  
   ru: {
     'transactions.title': 'Транзакции',
     'transactions.subtitle': 'Последние транзакции в сети',
@@ -107,7 +101,6 @@ export const transactionsTranslations = {
     'transactions.next': 'Вперед',
     'transactions.page': 'Страница',
   },
-  
   vi: {
     'transactions.title': 'Giao dịch',
     'transactions.subtitle': 'Giao dịch mới nhất trên',

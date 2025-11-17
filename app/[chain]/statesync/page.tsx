@@ -43,7 +43,6 @@ export default function StateSyncPage() {
     }
   }, [params]);
 
-  // Function to check if RPC has indexer enabled
   const checkRpcIndexer = async (rpcUrl: string): Promise<boolean> => {
     try {
       const response = await fetch(`${rpcUrl}/status`);
@@ -55,7 +54,6 @@ export default function StateSyncPage() {
     }
   };
 
-  // Function to find first RPC with indexer enabled
   const findRpcWithIndexer = async (rpcList: any[]): Promise<string | null> => {
     for (const rpc of rpcList) {
       const hasIndexer = await checkRpcIndexer(rpc.address);
@@ -72,17 +70,15 @@ export default function StateSyncPage() {
   useEffect(() => {
     if (selectedChain && selectedChain.rpc && selectedChain.rpc.length > 0) {
       setLoading(true);
-      
-      // Find RPC with indexer enabled
+
       findRpcWithIndexer(selectedChain.rpc)
         .then(rpcUrl => {
           if (!rpcUrl) {
-            // Fallback to first RPC if no indexer found
+
             console.warn('⚠️ No RPC with indexer found, using first available RPC');
             rpcUrl = selectedChain.rpc[0].address;
           }
-          
-          // Fetch latest block info
+
           return Promise.all([
             fetch(`${rpcUrl}/block`).then(r => r.json()),
             fetch(`${rpcUrl}/status`).then(r => r.json()),
@@ -96,14 +92,12 @@ export default function StateSyncPage() {
           if (latestBlock) {
             const height = parseInt(latestBlock.header.height);
             const trustHeight = height - 2000; // Trust height (2000 blocks back)
-            
-            // Fetch trust block to get proper trust_hash
+
             fetch(`${rpcUrl}/block?height=${trustHeight}`)
               .then(r => r.json())
               .then(trustBlockData => {
                 const trustHash = trustBlockData?.result?.block_id?.hash || '';
-                
-                // Filter only RPCs with indexer enabled
+
                 const rpcPromises = selectedChain.rpc.map(async (rpc: any) => {
                   const hasIndexer = await checkRpcIndexer(rpc.address);
                   return hasIndexer ? rpc.address : null;
@@ -432,3 +426,4 @@ echo "State sync configured! Check logs: journalctl -u ${selectedChain.chain_nam
     </div>
   );
 }
+

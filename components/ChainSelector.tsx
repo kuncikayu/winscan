@@ -1,57 +1,44 @@
 'use client';
-
 import { ChainData } from '@/types/chain';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { clearChainCache } from '@/lib/apiCache';
 import { clearLoadBalancer } from '@/lib/loadBalancer';
-
 interface ChainSelectorProps {
   chains: ChainData[];
   selectedChain: ChainData | null;
   onSelectChain: (chain: ChainData) => void;
 }
-
 export default function ChainSelector({ chains, selectedChain, onSelectChain }: ChainSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
   const handleChainSelect = async (chain: ChainData) => {
     if (switching) return;
-    
     setSwitching(true);
-    
     if (selectedChain && selectedChain.chain_name !== chain.chain_name) {
       const oldChainPath = selectedChain.chain_name.toLowerCase().replace(/\s+/g, '-');
       clearChainCache(oldChainPath);
       clearLoadBalancer(oldChainPath);
       console.log(`[ChainSelector] Switched from ${selectedChain.chain_name} to ${chain.chain_name}`);
     }
-    
     onSelectChain(chain);
     setIsOpen(false);
-    
     const newChainPath = chain.chain_name.toLowerCase().replace(/\s+/g, '-');
-    
     const pathParts = pathname.split('/').filter(Boolean);
     const currentPage = pathParts.length > 1 ? pathParts.slice(1).join('/') : '';
-    
     if (currentPage) {
       router.push(`/${newChainPath}/${currentPage}`);
     } else {
       router.push(`/${newChainPath}`);
     }
-    
     setTimeout(() => setSwitching(false), 1000);
   };
-
   const getPrettyName = (chainName: string) => {
     return chainName.replace(/-mainnet$/i, '').replace(/-testnet$/i, ' Testnet');
   };
-
   return (
     <div className="relative">
       <button
@@ -68,7 +55,6 @@ export default function ChainSelector({ chains, selectedChain, onSelectChain }: 
         )}
         <ChevronDown className="w-4 h-4 text-gray-400" />
       </button>
-
       {isOpen && (
         <>
           <div 

@@ -1,4 +1,3 @@
-// Extended translations for Validators page
 export const validatorsTranslations = {
   en: {
     'validators.title': 'Validators',
@@ -22,7 +21,6 @@ export const validatorsTranslations = {
     'validators.jailed': 'Jailed',
     'validators.noValidators': 'No validators found',
   },
-  
   id: {
     'validators.title': 'Validator',
     'validators.subtitle': 'Lihat semua validator di',
@@ -45,7 +43,6 @@ export const validatorsTranslations = {
     'validators.jailed': 'Jailed',
     'validators.noValidators': 'Tidak ada validator ditemukan',
   },
-  
   zh: {
     'validators.title': '验证者',
     'validators.subtitle': '查看所有验证者',
@@ -68,7 +65,6 @@ export const validatorsTranslations = {
     'validators.jailed': '已锁定',
     'validators.noValidators': '未找到验证者',
   },
-  
   ja: {
     'validators.title': 'バリデーター',
     'validators.subtitle': 'すべてのバリデーターを表示',
@@ -91,7 +87,6 @@ export const validatorsTranslations = {
     'validators.jailed': 'ジェイル',
     'validators.noValidators': 'バリデーターが見つかりません',
   },
-  
   hi: {
     'validators.title': 'सत्यापनकर्ता',
     'validators.subtitle': 'सभी सत्यापनकर्ता देखें',
@@ -114,7 +109,6 @@ export const validatorsTranslations = {
     'validators.jailed': 'जेल में',
     'validators.noValidators': 'कोई सत्यापनकर्ता नहीं मिला',
   },
-  
   ru: {
     'validators.title': 'Валидаторы',
     'validators.subtitle': 'Просмотр всех валидаторов в сети',
@@ -137,7 +131,6 @@ export const validatorsTranslations = {
     'validators.jailed': 'В тюрьме',
     'validators.noValidators': 'Валидаторы не найдены',
   },
-  
   vi: {
     'validators.title': 'Validator',
     'validators.subtitle': 'Xem tất cả validator trên',
