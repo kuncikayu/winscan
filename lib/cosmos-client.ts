@@ -402,20 +402,29 @@ export async function fetchTransactionByHashDirectly(
 
 /**
  * Fetch staking parameters directly
+ * Smart fallback: Uses ssl.winsnip.xyz if direct LCD fails
  */
 export async function fetchStakingParamsDirectly(
-  endpoints: LCDEndpoint[]
+  endpoints: LCDEndpoint[],
+  chainPath?: string
 ): Promise<any> {
   const errors: string[] = [];
   
+  // Try direct LCD endpoints first
   for (const endpoint of endpoints) {
     try {
       const url = `${endpoint.address}/cosmos/staking/v1beta1/params`;
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: { 'Accept': 'application/json' },
         mode: 'cors',
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         errors.push(`${endpoint.provider}: HTTP ${response.status}`);
@@ -432,25 +441,56 @@ export async function fetchStakingParamsDirectly(
     }
   }
   
-  throw new Error(`All LCD endpoints failed:\n${errors.join('\n')}`);
+  // Smart fallback: Try ssl.winsnip.xyz API if all LCD endpoints fail
+  if (chainPath) {
+    try {
+      console.log(`[CosmosClient] Direct LCD failed for staking params, trying ssl.winsnip.xyz fallback`);
+      const fallbackUrl = `https://ssl.winsnip.xyz/api/parameters/staking?chain=${chainPath}`;
+      
+      const response = await fetch(fallbackUrl, {
+        headers: { 'Accept': 'application/json' },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[CosmosClient] ✓ Staking params from ssl.winsnip.xyz fallback`);
+        return data;
+      }
+    } catch (fallbackError) {
+      console.error('[CosmosClient] Fallback API also failed for staking params:', fallbackError);
+    }
+  }
+  
+  // Return empty object instead of throwing error
+  console.warn('[CosmosClient] All endpoints failed for staking params, returning empty');
+  return {};
 }
 
 /**
  * Fetch slashing parameters directly
+ * Smart fallback: Uses ssl.winsnip.xyz if direct LCD fails
  */
 export async function fetchSlashingParamsDirectly(
-  endpoints: LCDEndpoint[]
+  endpoints: LCDEndpoint[],
+  chainPath?: string
 ): Promise<any> {
   const errors: string[] = [];
   
+  // Try direct LCD endpoints first
   for (const endpoint of endpoints) {
     try {
       const url = `${endpoint.address}/cosmos/slashing/v1beta1/params`;
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: { 'Accept': 'application/json' },
         mode: 'cors',
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         errors.push(`${endpoint.provider}: HTTP ${response.status}`);
@@ -467,17 +507,42 @@ export async function fetchSlashingParamsDirectly(
     }
   }
   
-  throw new Error(`All LCD endpoints failed:\n${errors.join('\n')}`);
+  // Smart fallback: Try ssl.winsnip.xyz API
+  if (chainPath) {
+    try {
+      console.log(`[CosmosClient] Direct LCD failed for slashing params, trying ssl.winsnip.xyz fallback`);
+      const fallbackUrl = `https://ssl.winsnip.xyz/api/parameters/slashing?chain=${chainPath}`;
+      
+      const response = await fetch(fallbackUrl, {
+        headers: { 'Accept': 'application/json' },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[CosmosClient] ✓ Slashing params from ssl.winsnip.xyz fallback`);
+        return data;
+      }
+    } catch (fallbackError) {
+      console.error('[CosmosClient] Fallback API also failed for slashing params:', fallbackError);
+    }
+  }
+  
+  // Return empty object instead of throwing error
+  console.warn('[CosmosClient] All endpoints failed for slashing params, returning empty');
+  return {};
 }
 
 /**
  * Fetch governance parameters directly
+ * Smart fallback: Uses ssl.winsnip.xyz if direct LCD fails
  */
 export async function fetchGovParamsDirectly(
-  endpoints: LCDEndpoint[]
+  endpoints: LCDEndpoint[],
+  chainPath?: string
 ): Promise<any> {
   const errors: string[] = [];
   
+  // Try direct LCD endpoints first
   for (const endpoint of endpoints) {
     try {
       // Try to fetch all gov params
@@ -514,25 +579,56 @@ export async function fetchGovParamsDirectly(
     }
   }
   
-  throw new Error(`All LCD endpoints failed:\n${errors.join('\n')}`);
+  // Smart fallback: Try ssl.winsnip.xyz API
+  if (chainPath) {
+    try {
+      console.log(`[CosmosClient] Direct LCD failed for gov params, trying ssl.winsnip.xyz fallback`);
+      const fallbackUrl = `https://ssl.winsnip.xyz/api/parameters/gov?chain=${chainPath}`;
+      
+      const response = await fetch(fallbackUrl, {
+        headers: { 'Accept': 'application/json' },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[CosmosClient] ✓ Gov params from ssl.winsnip.xyz fallback`);
+        return data;
+      }
+    } catch (fallbackError) {
+      console.error('[CosmosClient] Fallback API also failed for gov params:', fallbackError);
+    }
+  }
+  
+  // Return empty object instead of throwing error
+  console.warn('[CosmosClient] All endpoints failed for gov params, returning empty');
+  return {};
 }
 
 /**
  * Fetch distribution parameters directly
+ * Smart fallback: Uses ssl.winsnip.xyz if direct LCD fails
  */
 export async function fetchDistributionParamsDirectly(
-  endpoints: LCDEndpoint[]
+  endpoints: LCDEndpoint[],
+  chainPath?: string
 ): Promise<any> {
   const errors: string[] = [];
   
+  // Try direct LCD endpoints first
   for (const endpoint of endpoints) {
     try {
       const url = `${endpoint.address}/cosmos/distribution/v1beta1/params`;
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: { 'Accept': 'application/json' },
         mode: 'cors',
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         errors.push(`${endpoint.provider}: HTTP ${response.status}`);
@@ -549,25 +645,56 @@ export async function fetchDistributionParamsDirectly(
     }
   }
   
-  throw new Error(`All LCD endpoints failed:\n${errors.join('\n')}`);
+  // Smart fallback: Try ssl.winsnip.xyz API
+  if (chainPath) {
+    try {
+      console.log(`[CosmosClient] Direct LCD failed for distribution params, trying ssl.winsnip.xyz fallback`);
+      const fallbackUrl = `https://ssl.winsnip.xyz/api/parameters/distribution?chain=${chainPath}`;
+      
+      const response = await fetch(fallbackUrl, {
+        headers: { 'Accept': 'application/json' },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[CosmosClient] ✓ Distribution params from ssl.winsnip.xyz fallback`);
+        return data;
+      }
+    } catch (fallbackError) {
+      console.error('[CosmosClient] Fallback API also failed for distribution params:', fallbackError);
+    }
+  }
+  
+  // Return empty object instead of throwing error
+  console.warn('[CosmosClient] All endpoints failed for distribution params, returning empty');
+  return {};
 }
 
 /**
  * Fetch mint parameters directly
+ * Smart fallback: Uses ssl.winsnip.xyz if direct LCD fails
  */
 export async function fetchMintParamsDirectly(
-  endpoints: LCDEndpoint[]
+  endpoints: LCDEndpoint[],
+  chainPath?: string
 ): Promise<any> {
   const errors: string[] = [];
   
+  // Try direct LCD endpoints first
   for (const endpoint of endpoints) {
     try {
       const url = `${endpoint.address}/cosmos/mint/v1beta1/params`;
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: { 'Accept': 'application/json' },
         mode: 'cors',
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         errors.push(`${endpoint.provider}: HTTP ${response.status}`);
@@ -584,7 +711,29 @@ export async function fetchMintParamsDirectly(
     }
   }
   
-  throw new Error(`All LCD endpoints failed:\n${errors.join('\n')}`);
+  // Smart fallback: Try ssl.winsnip.xyz API
+  if (chainPath) {
+    try {
+      console.log(`[CosmosClient] Direct LCD failed for mint params, trying ssl.winsnip.xyz fallback`);
+      const fallbackUrl = `https://ssl.winsnip.xyz/api/parameters/mint?chain=${chainPath}`;
+      
+      const response = await fetch(fallbackUrl, {
+        headers: { 'Accept': 'application/json' },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[CosmosClient] ✓ Mint params from ssl.winsnip.xyz fallback`);
+        return data;
+      }
+    } catch (fallbackError) {
+      console.error('[CosmosClient] Fallback API also failed for mint params:', fallbackError);
+    }
+  }
+  
+  // Return empty object instead of throwing error
+  console.warn('[CosmosClient] All endpoints failed for mint params, returning empty');
+  return {};
 }
 
 /**

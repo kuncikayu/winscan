@@ -4,23 +4,28 @@ import { TrendingUp } from 'lucide-react';
 interface TransactionHistoryChartProps {
   data?: { date: string; count: number }[];
 }
-type TimeRange = '7d' | '30d' | '365d';
+
+type TimeRange = '1d' | '7d' | '30d' | '1y';
+
 export default function TransactionHistoryChart({ data }: TransactionHistoryChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+  const [timeRange, setTimeRange] = useState<TimeRange>('1d');
   const getDaysCount = () => {
     switch (timeRange) {
+      case '1d': return 1;
       case '7d': return 7;
       case '30d': return 30;
-      case '365d': return 365;
+      case '1y': return 365;
       default: return 30;
     }
   };
+
   const getLabel = () => {
     switch (timeRange) {
+      case '1d': return '1 Day';
       case '7d': return '7 Days';
       case '30d': return '30 Days';
-      case '365d': return '1 Year';
+      case '1y': return '1 Year';
       default: return '30 Days';
     }
   };
@@ -30,17 +35,49 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const daysCount = getDaysCount();
-    let chartData = data && data.length > 0 
-      ? data.slice(0, daysCount).reverse() 
-      : Array.from({ length: daysCount }, (_, i) => {
-          const date = new Date();
-          date.setDate(date.getDate() - (daysCount - 1 - i));
-          return {
-            date: date.toISOString(),
-            count: 0
-          };
-        });
-    if (chartData.length < daysCount) {
+    
+    // Untuk 1 day, gunakan semua data yang ada (bisa jadi per blok/jam)
+    // Untuk range lain, filter berdasarkan hari
+    let chartData;
+    
+    if (timeRange === '1d' && data && data.length > 0) {
+      // Untuk 1 hari, tampilkan semua data yang ada dalam 24 jam terakhir
+      const oneDayAgo = new Date();
+      oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+      
+      chartData = data
+        .filter(d => new Date(d.date) >= oneDayAgo)
+        .slice(0, 30) // Ambil max 30 data points terakhir
+        .reverse();
+      
+      // Jika tidak ada data 1 hari terakhir, pakai data terbaru yang ada
+      if (chartData.length === 0 && data.length > 0) {
+        chartData = data.slice(0, Math.min(10, data.length)).reverse();
+      }
+    } else {
+      // Untuk range lain, gunakan logic lama
+      chartData = data && data.length > 0 
+        ? data.slice(0, daysCount).reverse() 
+        : Array.from({ length: daysCount }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (daysCount - 1 - i));
+            return {
+              date: date.toISOString(),
+              count: 0
+            };
+          });
+    }
+    
+    // Pastikan minimal ada 2 data points untuk chart
+    if (chartData.length < 2) {
+      const now = new Date();
+      chartData = [
+        { date: new Date(now.getTime() - 3600000).toISOString(), count: 0 },
+        { date: now.toISOString(), count: chartData[0]?.count || 0 }
+      ];
+    }
+    
+    if (timeRange !== '1d' && chartData.length < daysCount) {
       const missing = daysCount - chartData.length;
       const oldestDate = new Date(chartData[0].date);
       const fillerData = Array.from({ length: missing }, (_, i) => {
@@ -53,6 +90,7 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
       });
       chartData = [...fillerData, ...chartData];
     }
+    
     console.log('[TransactionChart] Rendering with data:', chartData.slice(0, 3));
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
@@ -131,14 +169,22 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
     ctx.fillStyle = '#888';
     ctx.font = '10px Inter, sans-serif';
     ctx.textAlign = 'center';
-    const labelInterval = timeRange === '365d' ? 30 : (timeRange === '30d' ? 5 : 1);
+    const labelInterval = timeRange === '1y' ? 30 : (timeRange === '30d' ? 5 : (timeRange === '1d' ? 3 : 1));
     chartData.forEach((point, i) => {
       if (i % labelInterval === 0 || i === chartData.length - 1) {
         const x = padding.left + (chartWidth / (chartData.length - 1)) * i;
         const date = new Date(point.date);
-        const label = timeRange === '365d' 
-          ? `${date.getMonth() + 1}/${date.getFullYear().toString().slice(2)}`
-          : `${date.getMonth() + 1}/${date.getDate()}`;
+        let label;
+        
+        if (timeRange === '1d') {
+          // Untuk 1 day, tampilkan jam
+          label = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        } else if (timeRange === '1y') {
+          label = `${date.getMonth() + 1}/${date.getFullYear().toString().slice(2)}`;
+        } else {
+          label = `${date.getMonth() + 1}/${date.getDate()}`;
+        }
+        
         ctx.fillText(label, x, height - 20);
       }
     });
@@ -155,6 +201,16 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
             Total: {(data || []).reduce((sum, d) => sum + d.count, 0).toLocaleString()}
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={() => setTimeRange('1d')}
+              className={`px-3 py-1 text-xs rounded transition-all ${
+                timeRange === '1d'
+                  ? 'bg-primary text-primary-text font-semibold'
+                  : 'bg-surface border border-theme text-dim hover:border-primary'
+              }`}
+            >
+              1D
+            </button>
             <button
               onClick={() => setTimeRange('7d')}
               className={`px-3 py-1 text-xs rounded transition-all ${
@@ -176,9 +232,9 @@ export default function TransactionHistoryChart({ data }: TransactionHistoryChar
               30D
             </button>
             <button
-              onClick={() => setTimeRange('365d')}
+              onClick={() => setTimeRange('1y')}
               className={`px-3 py-1 text-xs rounded transition-all ${
-                timeRange === '365d'
+                timeRange === '1y'
                   ? 'bg-primary text-primary-text font-semibold'
                   : 'bg-surface border border-theme text-dim hover:border-primary'
               }`}

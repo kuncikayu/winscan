@@ -87,10 +87,11 @@ export default function ChainOverviewPage() {
           const { data } = JSON.parse(cachedValidators);
           if (data && data.length > 0) {
             setValidators(data);
+            // Calculate total bonded from cached validators
             const totalBonded = data.reduce((sum: number, v: any) => 
               sum + (parseFloat(v.votingPower) || 0), 0
             ) / 1000000;
-            setTotalSupply(totalBonded > 0 ? totalBonded * 1.5 : 1000000);
+            setTotalSupply(totalBonded > 0 ? totalBonded : 1000000);
             hasAnyCache = true;
           }
         }
@@ -180,16 +181,36 @@ export default function ChainOverviewPage() {
 
       const loadValidators = async () => {
         try {
-          const data = await fetchWithRetry(`/api/validators?chain=${selectedChain.chain_id || selectedChain.chain_name}`);
-          setValidators(data);
-          const totalBonded = data.reduce((sum: number, v: any) => 
-            sum + (parseFloat(v.votingPower) || 0), 0
-          ) / 1000000;
-          setTotalSupply(totalBonded > 0 ? totalBonded * 1.5 : 1000000);
-          setCache(`${chainKey}_validators`, data);
+          const response = await fetchWithRetry(`/api/validators?chain=${selectedChain.chain_id || selectedChain.chain_name}`);
+          // API returns { validators: [...], total: number }
+          const validatorsData = response.validators || response;
+          
+          console.log('Validators loaded:', validatorsData.length, 'validators');
+          if (validatorsData.length > 0) {
+            console.log('First validator sample:', validatorsData[0]);
+          }
+          
+          setValidators(validatorsData);
+          setCache(`${chainKey}_validators`, validatorsData);
           setDataLoaded(prev => ({ ...prev, validators: true }));
         } catch (err) {
+          console.error('Error loading validators:', err);
           setDataLoaded(prev => ({ ...prev, validators: true }));
+        }
+      };
+
+      const loadSupply = async () => {
+        try {
+          // Ambil total supply dari API bank/supply
+          const supplyData = await fetchWithRetry(`/api/supply?chain=${selectedChain.chain_id || selectedChain.chain_name}`);
+          if (supplyData && supplyData.totalSupply) {
+            setTotalSupply(parseFloat(supplyData.totalSupply) / 1000000);
+            console.log('Total supply loaded:', supplyData.totalSupply);
+          }
+        } catch (err) {
+          console.error('Error loading supply:', err);
+          // Fallback ke 1M jika gagal
+          setTotalSupply(1000000);
         }
       };
 
@@ -216,7 +237,8 @@ export default function ChainOverviewPage() {
             loadNetwork(),
             loadBlocks(),
             loadValidators(),
-            loadTransactions()
+            loadSupply(),
+            loadTransactions(),
           ]);
         } catch (err) {
           console.error('Error during data loading:', err);
@@ -349,10 +371,7 @@ export default function ChainOverviewPage() {
                     ? (validators.reduce((sum: number, v: any) => sum + (parseFloat(v.votingPower) || 0), 0) / 1000000).toFixed(2)
                     : "0"
                   }
-                  unbonded={totalSupply > 0 && validators && validators.length > 0
-                    ? Math.max(0, totalSupply - (validators.reduce((sum: number, v: any) => sum + (parseFloat(v.votingPower) || 0), 0) / 1000000)).toFixed(2)
-                    : totalSupply > 0 ? totalSupply.toFixed(2) : "1000000"
-                  }
+                  totalSupply={totalSupply > 0 ? totalSupply.toFixed(2) : "1000000"}
                 />
                 <TransactionHistoryChart 
                   data={blocks && blocks.length > 0 
@@ -367,14 +386,34 @@ export default function ChainOverviewPage() {
                   validators={validators && validators.length > 0 
                     ? (() => {
                         const totalVP = validators.reduce((sum: number, val: any) => sum + (parseFloat(val.votingPower) || 0), 0);
-                        return validators.map((v: any) => {
-                          const vp = parseFloat(v.votingPower) || 0;
-                          return {
-                            name: v.moniker || v.address?.substring(0, 10) || 'Unknown',
-                            votingPower: vp / 1000000,
-                            percentage: totalVP > 0 ? (vp / totalVP) * 100 : 0
-                          };
-                        });
+                        const sorted = validators
+                          .map((v: any) => {
+                            const vp = parseFloat(v.votingPower) || 0;
+                            return {
+                              name: v.moniker || v.address?.substring(0, 10) || 'Unknown',
+                              votingPower: vp / 1000000,
+                              percentage: totalVP > 0 ? (vp / totalVP) * 100 : 0,
+                              rawVotingPower: vp
+                            };
+                          })
+                          .sort((a, b) => b.rawVotingPower - a.rawVotingPower);
+                        
+                        // Ambil top 10 dan sisanya jadi "Others"
+                        const top10 = sorted.slice(0, 10);
+                        const others = sorted.slice(10);
+                        
+                        if (others.length > 0) {
+                          const othersVP = others.reduce((sum, v) => sum + v.votingPower, 0);
+                          const othersPercentage = others.reduce((sum, v) => sum + v.percentage, 0);
+                          top10.push({
+                            name: 'Others',
+                            votingPower: othersVP,
+                            percentage: othersPercentage,
+                            rawVotingPower: othersVP * 1000000
+                          });
+                        }
+                        
+                        return top10;
                       })()
                     : []
                   }

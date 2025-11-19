@@ -127,22 +127,30 @@ export default function ParametersPage() {
           try {
             console.log(`[Parameters] Using direct LCD fetch for ${selectedChain.chain_name}`);
             
-            // Fetch all params in parallel
+            const chainPath = selectedChain.chain_name.toLowerCase().replace(/\s+/g, '-');
+            
+            // Fetch all params in parallel with smart fallback
             const [staking, slashing, gov, distribution, mint] = await Promise.allSettled([
-              fetchStakingParamsDirectly(lcdEndpoints),
-              fetchSlashingParamsDirectly(lcdEndpoints),
-              fetchGovParamsDirectly(lcdEndpoints),
-              fetchDistributionParamsDirectly(lcdEndpoints),
-              fetchMintParamsDirectly(lcdEndpoints)
+              fetchStakingParamsDirectly(lcdEndpoints, chainPath),
+              fetchSlashingParamsDirectly(lcdEndpoints, chainPath),
+              fetchGovParamsDirectly(lcdEndpoints, chainPath),
+              fetchDistributionParamsDirectly(lcdEndpoints, chainPath),
+              fetchMintParamsDirectly(lcdEndpoints, chainPath)
             ]);
             
             const paramsData: ChainParameters = {
-              staking: staking.status === 'fulfilled' ? staking.value : undefined,
-              slashing: slashing.status === 'fulfilled' ? slashing.value : undefined,
-              gov: gov.status === 'fulfilled' ? gov.value : undefined,
-              distribution: distribution.status === 'fulfilled' ? distribution.value : undefined,
-              mint: mint.status === 'fulfilled' ? mint.value : undefined,
+              staking: staking.status === 'fulfilled' && staking.value ? staking.value.params || staking.value : undefined,
+              slashing: slashing.status === 'fulfilled' && slashing.value ? slashing.value.params || slashing.value : undefined,
+              gov: gov.status === 'fulfilled' && gov.value ? {
+                ...gov.value.voting_params?.voting_params,
+                ...gov.value.deposit_params?.deposit_params,
+                ...gov.value.tally_params?.tally_params
+              } : undefined,
+              distribution: distribution.status === 'fulfilled' && distribution.value ? distribution.value.params || distribution.value : undefined,
+              mint: mint.status === 'fulfilled' && mint.value ? mint.value.params || mint.value : undefined,
             };
+            
+            console.log('[Parameters] Extracted params:', paramsData);
             
             setParameters(paramsData);
             setLoading(false);

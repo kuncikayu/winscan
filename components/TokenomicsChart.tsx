@@ -1,20 +1,24 @@
 'use client';
+
 interface TokenomicsChartProps {
   bonded: string;
-  unbonded: string;
+  totalSupply: string;
 }
-export default function TokenomicsChart({ bonded, unbonded }: TokenomicsChartProps) {
+
+export default function TokenomicsChart({ bonded, totalSupply }: TokenomicsChartProps) {
   const bondedNum = parseFloat(bonded);
-  const unbondedNum = parseFloat(unbonded);
-  const total = bondedNum + unbondedNum;
-  const bondedPercent = total > 0 ? (bondedNum / total) * 100 : 0;
-  const unbondedPercent = total > 0 ? (unbondedNum / total) * 100 : 0;
+  const totalSupplyNum = parseFloat(totalSupply);
+  
+  const bondedPercent = totalSupplyNum > 0 ? (bondedNum / totalSupplyNum) * 100 : 0;
+  const unbondedPercent = 100 - bondedPercent;
+
   const formatNumber = (num: number) => {
     if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
     if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
     if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
     return num.toFixed(2);
   };
+
   return (
     <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6">
       <div className="flex items-center justify-center mb-6">
@@ -52,12 +56,13 @@ export default function TokenomicsChart({ bonded, unbonded }: TokenomicsChartPro
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-3xl font-bold text-white">{bondedPercent.toFixed(1)}%</div>
-              <div className="text-gray-400 text-sm">Bonded</div>
+              <div className="text-2xl font-bold text-white">{formatNumber(bondedNum)} / {formatNumber(totalSupplyNum)}</div>
+              <div className="text-gray-400 text-sm">Bonded / Supply</div>
             </div>
           </div>
         </div>
       </div>
+      
       <div className="grid grid-cols-2 gap-4">
         <div className="text-center">
           <div className="flex items-center justify-center mb-2">
@@ -69,9 +74,9 @@ export default function TokenomicsChart({ bonded, unbonded }: TokenomicsChartPro
         <div className="text-center">
           <div className="flex items-center justify-center mb-2">
             <div className="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
-            <span className="text-gray-400">Unbonded</span>
+            <span className="text-gray-400">Total Supply</span>
           </div>
-          <div className="text-xl font-bold text-white">{formatNumber(unbondedNum)}</div>
+          <div className="text-xl font-bold text-white">{formatNumber(totalSupplyNum)}</div>
         </div>
       </div>
     </div>
