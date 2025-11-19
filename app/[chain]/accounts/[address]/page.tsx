@@ -11,7 +11,7 @@ import { Wallet, Copy, CheckCircle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
-import { fetchAccountDirectly, fetchBalanceDirectly } from '@/lib/cosmos-client';
+import { fetchAccountDirectly, fetchBalanceDirectly, fetchTxsByAddressDirectly } from '@/lib/cosmos-client';
 
 interface AccountDetail {
   address: string;
@@ -110,12 +110,12 @@ export default function AccountPage() {
           
           if (lcdEndpoints.length > 0) {
             try {
-              console.log(`[Account] Using direct LCD fetch for ${params.address}`);
               
-              // Fetch account and balance in parallel
-              const [accountData, balances] = await Promise.all([
+              // Fetch account, balance, and transactions in parallel
+              const [accountData, balances, txsData] = await Promise.all([
                 fetchAccountDirectly(lcdEndpoints, params.address as string).catch(() => null),
-                fetchBalanceDirectly(lcdEndpoints, params.address as string).catch(() => [])
+                fetchBalanceDirectly(lcdEndpoints, params.address as string).catch(() => []),
+                fetchTxsByAddressDirectly(lcdEndpoints, params.address as string, 100).catch(() => [])
               ]);
               
               const formattedAccount: AccountDetail = {
@@ -125,7 +125,19 @@ export default function AccountPage() {
                 rewards: [] // Would need separate endpoint
               };
               
+              // Format transactions
+              const formattedTxs = txsData.map((tx: any) => ({
+                hash: tx.txhash,
+                height: parseInt(tx.height),
+                type: tx.tx?.body?.messages?.[0]?.['@type'] || 'unknown',
+                result: tx.code === 0 ? 'success' : 'failed',
+                time: tx.timestamp,
+                fee: tx.tx?.auth_info?.fee?.amount?.[0]?.amount || '0',
+                messages: tx.tx?.body?.messages?.length || 0
+              }));
+              
               setAccount(formattedAccount);
+              setTransactions(formattedTxs);
               setLoading(false);
               setError(null);
               
@@ -133,13 +145,12 @@ export default function AccountPage() {
               const cacheKey = `account_${selectedChain.chain_name}_${params.address}`;
               sessionStorage.setItem(cacheKey, JSON.stringify({
                 accountData: formattedAccount,
-                txData: [],
+                txData: formattedTxs,
                 timestamp: Date.now()
               }));
               
               return;
             } catch (directError) {
-              console.warn('[Account] Direct LCD fetch failed, trying server API:', directError);
             }
           }
           
