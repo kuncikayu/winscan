@@ -21,9 +21,7 @@ export default function ChainSelector({ chains, selectedChain, onSelectChain }: 
     if (selectedChain && selectedChain.chain_name !== chain.chain_name) {
       const oldChainPath = selectedChain.chain_name.toLowerCase().replace(/\s+/g, '-');
       clearChainCache(oldChainPath);
-      clearLoadBalancer(oldChainPath);
-      console.log(`[ChainSelector] Switched from ${selectedChain.chain_name} to ${chain.chain_name}`);
-    }
+      clearLoadBalancer(oldChainPath);    }
     onSelectChain(chain);
     setIsOpen(false);
     const newChainPath = chain.chain_name.toLowerCase().replace(/\s+/g, '-');

@@ -52,8 +52,6 @@ export async function fetchValidatorsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
       const url = `${endpoint.address}/cosmos/staking/v1beta1/validators?status=${status}&pagination.limit=${limit}`;
       
       const controller = new AbortController();
@@ -79,7 +77,6 @@ export async function fetchValidatorsDirectly(
         continue;
       }
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${data.validators.length} validators)`);
       return data.validators;
       
     } catch (error: any) {
@@ -103,9 +100,7 @@ export async function fetchProposalsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/gov/v1beta1/proposals?proposal_status=${status}&pagination.limit=${limit}&pagination.reverse=true`;
+      const url = `${endpoint.address}/cosmos/gov/v1beta1/proposals?proposal_status=${status}&pagination.limit=${limit}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -128,10 +123,7 @@ export async function fetchProposalsDirectly(
       if (!data.proposals) {
         errors.push(`${endpoint.provider}: No proposals field`);
         continue;
-      }
-      
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${data.proposals.length} proposals)`);
-      return data.proposals;
+      }      return data.proposals;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -155,9 +147,7 @@ export async function fetchBlocksDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      // Get latest block first if no range specified
+            // Get latest block first if no range specified
       let latestHeight: number;
       if (!maxHeight) {
         const latestUrl = `${endpoint.address}/cosmos/base/tendermint/v1beta1/blocks/latest`;
@@ -199,9 +189,7 @@ export async function fetchBlocksDirectly(
         }
       }
       
-      if (blocks.length > 0) {
-        console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${blocks.length} blocks)`);
-        return blocks;
+      if (blocks.length > 0) {        return blocks;
       }
       
     } catch (error: any) {
@@ -224,8 +212,6 @@ export async function fetchBlockByHeightDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
       const url = `${endpoint.address}/cosmos/base/tendermint/v1beta1/blocks/${height}`;
       
       const controller = new AbortController();
@@ -246,8 +232,7 @@ export async function fetchBlockByHeightDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for block ${height}`);
-      return data;
+            return data;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -269,8 +254,6 @@ export async function fetchTxsByHeightDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
       const url = `${endpoint.address}/cosmos/tx/v1beta1/txs?events=tx.height=${height}`;
       
       const controller = new AbortController();
@@ -291,7 +274,6 @@ export async function fetchTxsByHeightDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${data.txs?.length || 0} txs)`);
       return data.txs || [];
       
     } catch (error: any) {
@@ -314,9 +296,7 @@ export async function fetchTxByHashDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/tx/v1beta1/txs/${hash}`;
+            const url = `${endpoint.address}/cosmos/tx/v1beta1/txs/${hash}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -336,8 +316,7 @@ export async function fetchTxByHashDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for tx ${hash}`);
-      return data.tx_response;
+            return data.tx_response;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -359,9 +338,7 @@ export async function fetchAccountDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/auth/v1beta1/accounts/${address}`;
+            const url = `${endpoint.address}/cosmos/auth/v1beta1/accounts/${address}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -381,8 +358,7 @@ export async function fetchAccountDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for account ${address}`);
-      return data.account;
+            return data.account;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -404,9 +380,7 @@ export async function fetchBalanceDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/bank/v1beta1/balances/${address}`;
+            const url = `${endpoint.address}/cosmos/bank/v1beta1/balances/${address}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -426,8 +400,7 @@ export async function fetchBalanceDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for balance ${address}`);
-      return data.balances || [];
+            return data.balances || [];
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -449,9 +422,7 @@ export async function fetchSigningInfoDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/slashing/v1beta1/signing_infos?pagination.limit=${limit}`;
+            const url = `${endpoint.address}/cosmos/slashing/v1beta1/signing_infos?pagination.limit=${limit}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -469,10 +440,7 @@ export async function fetchSigningInfoDirectly(
         continue;
       }
       
-      const data = await response.json();
-      
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${data.info?.length || 0} signing infos)`);
-      return data.info || [];
+      const data = await response.json();      return data.info || [];
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -493,9 +461,7 @@ export async function fetchSlashingParamsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/slashing/v1beta1/params`;
+            const url = `${endpoint.address}/cosmos/slashing/v1beta1/params`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -515,8 +481,7 @@ export async function fetchSlashingParamsDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for slashing params`);
-      return data.params;
+            return data.params;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -537,9 +502,7 @@ export async function fetchStakingParamsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/staking/v1beta1/params`;
+            const url = `${endpoint.address}/cosmos/staking/v1beta1/params`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -559,8 +522,7 @@ export async function fetchStakingParamsDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for staking params`);
-      return data.params;
+            return data.params;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -581,9 +543,7 @@ export async function fetchMintParamsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/mint/v1beta1/params`;
+            const url = `${endpoint.address}/cosmos/mint/v1beta1/params`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -603,8 +563,7 @@ export async function fetchMintParamsDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for mint params`);
-      return data.params;
+            return data.params;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -625,9 +584,7 @@ export async function fetchDistributionParamsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/distribution/v1beta1/params`;
+            const url = `${endpoint.address}/cosmos/distribution/v1beta1/params`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -647,8 +604,7 @@ export async function fetchDistributionParamsDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for distribution params`);
-      return data.params;
+            return data.params;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -669,9 +625,7 @@ export async function fetchGovParamsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      // Try multiple gov param endpoints
+            // Try multiple gov param endpoints
       const paramTypes = ['voting', 'deposit', 'tallying'];
       const params: any = {};
       
@@ -693,8 +647,7 @@ export async function fetchGovParamsDirectly(
       }
       
       if (Object.keys(params).length > 0) {
-        console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for gov params`);
-        return params;
+                return params;
       }
       
     } catch (error: any) {
@@ -717,9 +670,7 @@ export async function fetchValidatorByAddressDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/staking/v1beta1/validators/${validatorAddress}`;
+            const url = `${endpoint.address}/cosmos/staking/v1beta1/validators/${validatorAddress}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -739,8 +690,7 @@ export async function fetchValidatorByAddressDirectly(
       
       const data = await response.json();
       
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} for validator ${validatorAddress}`);
-      return data.validator;
+            return data.validator;
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -763,9 +713,7 @@ export async function fetchValidatorDelegationsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/staking/v1beta1/validators/${validatorAddress}/delegations?pagination.limit=${limit}`;
+            const url = `${endpoint.address}/cosmos/staking/v1beta1/validators/${validatorAddress}/delegations?pagination.limit=${limit}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -783,10 +731,7 @@ export async function fetchValidatorDelegationsDirectly(
         continue;
       }
       
-      const data = await response.json();
-      
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${data.delegation_responses?.length || 0} delegations)`);
-      return data.delegation_responses || [];
+      const data = await response.json();      return data.delegation_responses || [];
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -809,9 +754,7 @@ export async function fetchValidatorUnbondingDelegationsDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      const url = `${endpoint.address}/cosmos/staking/v1beta1/validators/${validatorAddress}/unbonding_delegations?pagination.limit=${limit}`;
+            const url = `${endpoint.address}/cosmos/staking/v1beta1/validators/${validatorAddress}/unbonding_delegations?pagination.limit=${limit}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -829,10 +772,7 @@ export async function fetchValidatorUnbondingDelegationsDirectly(
         continue;
       }
       
-      const data = await response.json();
-      
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${data.unbonding_responses?.length || 0} unbonding)`);
-      return data.unbonding_responses || [];
+      const data = await response.json();      return data.unbonding_responses || [];
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -855,9 +795,7 @@ export async function fetchTxsByAddressDirectly(
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`[CosmosClient] Trying ${endpoint.provider}: ${endpoint.address}`);
-      
-      // Try message.sender filter
+            // Try message.sender filter
       const url = `${endpoint.address}/cosmos/tx/v1beta1/txs?events=message.sender='${address}'&pagination.limit=${limit}&pagination.reverse=true`;
       
       const controller = new AbortController();
@@ -876,10 +814,7 @@ export async function fetchTxsByAddressDirectly(
         continue;
       }
       
-      const data = await response.json();
-      
-      console.log(`[CosmosClient] ✓ Success from ${endpoint.provider} (${data.txs?.length || 0} txs for ${address})`);
-      return data.txs || [];
+      const data = await response.json();      return data.txs || [];
       
     } catch (error: any) {
       errors.push(`${endpoint.provider}: ${error.message}`);
@@ -900,3 +835,4 @@ export function shouldUseDirectFetch(chainName: string): boolean {
   // Server API is kept as fallback for better performance when it works
   return true;
 }
+

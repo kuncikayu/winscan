@@ -37,20 +37,14 @@ class APILoadBalancer {
       attempts++;
       if (endpoint.failures && endpoint.failures >= this.MAX_FAILURES) {
         const timeSinceFailure = Date.now() - (endpoint.lastFailure || 0);
-        if (timeSinceFailure < this.FAILURE_COOLDOWN) {
-          console.warn(`[LoadBalancer] Skipping ${endpoint.address} - in cooldown`);
-          continue;
+        if (timeSinceFailure < this.FAILURE_COOLDOWN) {          continue;
         }
         endpoint.failures = 0;
       }
-      if (this.isRateLimited(endpoint.address)) {
-        console.warn(`[LoadBalancer] Skipping ${endpoint.address} - rate limited`);
-        continue;
+      if (this.isRateLimited(endpoint.address)) {        continue;
       }
       return endpoint;
-    }
-    console.error('[LoadBalancer] All endpoints unavailable, using first endpoint');
-    return this.endpoints[0] || null;
+    }    return this.endpoints[0] || null;
   }
   private isRateLimited(address: string): boolean {
     const requests = this.requestCounts.get(address) || [];
@@ -94,15 +88,11 @@ class APILoadBalancer {
       }
       try {
         const url = `${endpoint.address}${path}`;
-        this.recordRequest(endpoint.address);
-        console.log(`[LoadBalancer] Fetching from ${endpoint.provider}: ${url}`);
-        const response = await fetch(url, {
+        this.recordRequest(endpoint.address);        const response = await fetch(url, {
           ...options,
           signal: AbortSignal.timeout(15000), // 15 second timeout
         });
-        if (response.status === 429) {
-          console.warn(`[LoadBalancer] Rate limit hit on ${endpoint.address}`);
-          this.markFailure(endpoint, new Error('Rate limit exceeded'));
+        if (response.status === 429) {          this.markFailure(endpoint, new Error('Rate limit exceeded'));
           attemptsLeft--;
           continue;
         }
@@ -116,17 +106,13 @@ class APILoadBalancer {
         lastError = error;
         this.markFailure(endpoint, error);
         attemptsLeft--;
-        if (attemptsLeft > 0) {
-          console.warn(`[LoadBalancer] Retrying... (${attemptsLeft} attempts left)`);
-          await new Promise(resolve => setTimeout(resolve, 500));
+        if (attemptsLeft > 0) {          await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
     }
     throw lastError || new Error('All endpoints failed');
   }
-  async healthCheck(): Promise<void> {
-    console.log('[LoadBalancer] Running health check...');
-    const checks = this.endpoints.map(async (endpoint) => {
+  async healthCheck(): Promise<void> {    const checks = this.endpoints.map(async (endpoint) => {
       const start = Date.now();
       try {
         const response = await fetch(`${endpoint.address}/cosmos/base/tendermint/v1beta1/node_info`, {
@@ -182,11 +168,11 @@ export function getLoadBalancer(
       rpc: new APILoadBalancer(rpcEndpoints),
     });
     const balancer = loadBalancers.get(chainName)!;
-    balancer.api.healthCheck().catch(console.error);
-    balancer.rpc.healthCheck().catch(console.error);
+    balancer.api.healthCheck().catch(() => {});
+    balancer.rpc.healthCheck().catch(() => {});
     setInterval(() => {
-      balancer.api.healthCheck().catch(console.error);
-      balancer.rpc.healthCheck().catch(console.error);
+      balancer.api.healthCheck().catch(() => {});
+      balancer.rpc.healthCheck().catch(() => {});
     }, 5 * 60 * 1000);
   }
   return loadBalancers.get(chainName)!;
@@ -217,7 +203,5 @@ export function getLoadBalancerStats(chainName: string) {
     rpc: balancer.rpc.getStats(),
   };
 }
-export function clearLoadBalancer(chainName: string): void {
-  console.log(`[LoadBalancer] Clearing load balancer for chain: ${chainName}`);
-  loadBalancers.delete(chainName);
+export function clearLoadBalancer(chainName: string): void {  loadBalancers.delete(chainName);
 }

@@ -37,7 +37,7 @@ export function debounce<T extends (...args: any[]) => any>(
 export async function fetchChains(): Promise<any[]> {
   const cached = chainCache.get<any[]>('chains_list');
   if (cached) {
-    fetchChainsFromAPI().catch(console.error);
+    fetchChainsFromAPI().catch(() => {});
     return cached;
   }
   return fetchChainsFromAPI();
@@ -70,14 +70,10 @@ export function prefetchCommonData(chainName: string): void {
     fetchWithCache(`/api/blocks?chain=${chainName}&limit=10`, {}, CACHE_CONFIG.latestBlocks),
     fetchWithCache(`/api/validators?chain=${chainName}`, {}, CACHE_CONFIG.validators),
     fetchWithCache(`/api/network?chain=${chainName}`, {}, CACHE_CONFIG.networkInfo),
-  ]).catch(console.error);
+  ]).catch(() => {});
 }
-export function clearChainCache(chainName: string): void {
-  console.log(`[ApiCache] Clearing cache for chain: ${chainName}`);
-  cacheManager.clearByPattern(chainName);
+export function clearChainCache(chainName: string): void {  cacheManager.clearByPattern(chainName);
 }
-export function clearAllCache(): void {
-  console.log('[ApiCache] Clearing all cache');
-  cacheManager.clear();
+export function clearAllCache(): void {  cacheManager.clear();
   chainCache.clear();
 }
