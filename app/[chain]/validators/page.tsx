@@ -9,6 +9,7 @@ import { ChainData, ValidatorData } from '@/types/chain';
 import { getCacheKey, setCache, getStaleCache } from '@/lib/cacheUtils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
+import { fetchValidatorsDirectly, shouldUseDirectFetch } from '@/lib/cosmos-client';
 
 export default function ValidatorsPage() {
   const params = useParams();
@@ -62,6 +63,44 @@ export default function ValidatorsPage() {
     }
     
     try {
+      // Strategy: Use direct LCD fetch for ALL chains (bypasses IP blocks)
+      // Server API kept as fallback only
+      const lcdEndpoints = selectedChain.api?.map(api => ({
+        address: api.address,
+        provider: api.provider || 'Unknown'
+      })) || [];
+      
+      if (lcdEndpoints.length > 0) {
+        console.log(`[Validators] Using direct LCD fetch for ${selectedChain.chain_name}`);
+        
+        try {
+          const validators = await fetchValidatorsDirectly(lcdEndpoints, 'BOND_STATUS_BONDED', 300);
+          
+          // Transform to match our ValidatorData interface
+          const formattedValidators = validators.map((v: any) => ({
+            address: v.operator_address,
+            moniker: v.description?.moniker || 'Unknown',
+            identity: v.description?.identity,
+            website: v.description?.website,
+            details: v.description?.details,
+            status: v.status,
+            jailed: v.jailed,
+            votingPower: v.tokens || '0',
+            commission: v.commission?.commission_rates?.rate || '0',
+          }));
+          
+          startTransition(() => {
+            setValidators(formattedValidators);
+            setCache(cacheKey, formattedValidators);
+            setLoading(false);
+          });
+          return;
+        } catch (directError) {
+          console.warn('[Validators] Direct LCD fetch failed, trying server API fallback:', directError);
+        }
+      }
+      
+      // Fallback: Try server API if direct fetch fails
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
       
@@ -70,13 +109,26 @@ export default function ValidatorsPage() {
       });
       clearTimeout(timeoutId);
       
-      const data = await res.json();
-      startTransition(() => {
-        setValidators(data);
-        setCache(cacheKey, data);
-        setLoading(false);
-      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          startTransition(() => {
+            setValidators(data);
+            setCache(cacheKey, data);
+            setLoading(false);
+          });
+          return;
+        }
+      }
+      
+      // Last resort: use cached data
+      if (cachedData) {
+        setValidators(cachedData);
+      }
+      setLoading(false);
+      
     } catch (err) {
+      console.error('[Validators] All fetch strategies failed:', err);
       if (cachedData) setValidators(cachedData);
       setLoading(false);
     }

@@ -10,6 +10,7 @@ import { getApiUrl } from '@/lib/config';
 import { Vote, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/lib/i18n';
+import { fetchProposalsDirectly } from '@/lib/cosmos-client';
 
 interface Proposal {
   id: string;
@@ -80,43 +81,109 @@ export default function ProposalsPage() {
       }
     } catch (e) {}
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-    
-    const endpoint = getApiUrl(`api/proposals?chain=${selectedChain.chain_id || selectedChain.chain_name}`);
-    
-    fetch(endpoint, { signal: controller.signal })
-      .then(res => res.json())
-      .then(data => {
-        const transformedData = data.map((p: any) => ({
-          id: p.proposal_id || p.id,
-          title: p.content?.title || p.title || `Proposal #${p.proposal_id || p.id}`,
-          status: p.status,
-          type: p.content?.['@type'] || p.messages?.[0]?.['@type'] || p.type || 'Unknown',
-          submitTime: p.submit_time || p.submitTime,
-          votingStartTime: p.voting_start_time || p.votingStartTime,
-          votingEndTime: p.voting_end_time || p.votingEndTime,
-
-          yesVotes: p.final_tally_result?.yes || p.final_tally_result?.yes_count || p.yesVotes || '0',
-          noVotes: p.final_tally_result?.no || p.final_tally_result?.no_count || p.noVotes || '0',
-          abstainVotes: p.final_tally_result?.abstain || p.final_tally_result?.abstain_count || p.abstainVotes || '0',
-          vetoVotes: p.final_tally_result?.no_with_veto || p.final_tally_result?.no_with_veto_count || p.vetoVotes || '0',
-        }));
+    // Async fetch with direct LCD support
+    const fetchProposals = async () => {
+      try {
+        // Strategy: Try direct LCD fetch first (bypasses rate limits for ALL chains)
+        const lcdEndpoints = selectedChain.api?.map(api => ({
+          address: api.address,
+          provider: api.provider || 'Unknown'
+        })) || [];
         
-        transformedData.sort((a: any, b: any) => {
-          const idA = parseInt(a.id) || 0;
-          const idB = parseInt(b.id) || 0;
-          return idB - idA;
-        });
+        if (lcdEndpoints.length > 0) {
+          console.log(`[Proposals] Using direct LCD fetch for ${selectedChain.chain_name}`);
+          
+          try {
+            // Fetch multiple statuses in parallel
+            const [voting, passed, rejected] = await Promise.allSettled([
+              fetchProposalsDirectly(lcdEndpoints, 'PROPOSAL_STATUS_VOTING_PERIOD', 50),
+              fetchProposalsDirectly(lcdEndpoints, 'PROPOSAL_STATUS_PASSED', 50),
+              fetchProposalsDirectly(lcdEndpoints, 'PROPOSAL_STATUS_REJECTED', 50),
+            ]);
+            
+            const allProposals = [
+              ...(voting.status === 'fulfilled' ? voting.value : []),
+              ...(passed.status === 'fulfilled' ? passed.value : []),
+              ...(rejected.status === 'fulfilled' ? rejected.value : []),
+            ];
+            
+            if (allProposals.length > 0) {
+              const transformedData = allProposals.map((p: any) => ({
+                id: p.proposal_id || p.id,
+                title: p.content?.title || p.title || `Proposal #${p.proposal_id || p.id}`,
+                status: p.status,
+                type: p.content?.['@type'] || p.messages?.[0]?.['@type'] || p.type || 'Unknown',
+                submitTime: p.submit_time || p.submitTime,
+                votingStartTime: p.voting_start_time || p.votingStartTime,
+                votingEndTime: p.voting_end_time || p.votingEndTime,
+                yesVotes: p.final_tally_result?.yes || p.final_tally_result?.yes_count || p.yesVotes || '0',
+                noVotes: p.final_tally_result?.no || p.final_tally_result?.no_count || p.noVotes || '0',
+                abstainVotes: p.final_tally_result?.abstain || p.final_tally_result?.abstain_count || p.abstainVotes || '0',
+                vetoVotes: p.final_tally_result?.no_with_veto || p.final_tally_result?.no_with_veto_count || p.vetoVotes || '0',
+              }));
+              
+              transformedData.sort((a: any, b: any) => {
+                const idA = parseInt(a.id) || 0;
+                const idB = parseInt(b.id) || 0;
+                return idB - idA;
+              });
+              
+              setProposals(transformedData);
+              setLoading(false);
+              try {
+                sessionStorage.setItem(cacheKey, JSON.stringify({ data: transformedData, timestamp: Date.now() }));
+              } catch (e) {}
+              return;
+            }
+          } catch (directError) {
+            console.warn('[Proposals] Direct LCD fetch failed, trying server API fallback:', directError);
+          }
+        }
         
-        setProposals(transformedData);
+        // Fallback: Server API
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        
+        const endpoint = getApiUrl(`api/proposals?chain=${selectedChain.chain_id || selectedChain.chain_name}`);
+        
+        const res = await fetch(endpoint, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (res.ok) {
+          const data = await res.json();
+          const transformedData = data.map((p: any) => ({
+            id: p.proposal_id || p.id,
+            title: p.content?.title || p.title || `Proposal #${p.proposal_id || p.id}`,
+            status: p.status,
+            type: p.content?.['@type'] || p.messages?.[0]?.['@type'] || p.type || 'Unknown',
+            submitTime: p.submit_time || p.submitTime,
+            votingStartTime: p.voting_start_time || p.votingStartTime,
+            votingEndTime: p.voting_end_time || p.votingEndTime,
+            yesVotes: p.final_tally_result?.yes || p.final_tally_result?.yes_count || p.yesVotes || '0',
+            noVotes: p.final_tally_result?.no || p.final_tally_result?.no_count || p.noVotes || '0',
+            abstainVotes: p.final_tally_result?.abstain || p.final_tally_result?.abstain_count || p.abstainVotes || '0',
+            vetoVotes: p.final_tally_result?.no_with_veto || p.final_tally_result?.no_with_veto_count || p.vetoVotes || '0',
+          }));
+          
+          transformedData.sort((a: any, b: any) => {
+            const idA = parseInt(a.id) || 0;
+            const idB = parseInt(b.id) || 0;
+            return idB - idA;
+          });
+          
+          setProposals(transformedData);
+          setLoading(false);
+          try {
+            sessionStorage.setItem(cacheKey, JSON.stringify({ data: transformedData, timestamp: Date.now() }));
+          } catch (e) {}
+        }
+      } catch (err) {
+        console.error('[Proposals] All fetch strategies failed:', err);
         setLoading(false);
-        try {
-          sessionStorage.setItem(cacheKey, JSON.stringify({ data: transformedData, timestamp: Date.now() }));
-        } catch (e) {}
-      })
-      .catch(() => setLoading(false))
-      .finally(() => clearTimeout(timeoutId));
+      }
+    };
+    
+    fetchProposals();
   }, [selectedChain]);
 
   const filteredProposals = proposals.filter(p => {

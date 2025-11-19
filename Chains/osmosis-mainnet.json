@@ -39,6 +39,18 @@
     {
       "address": "https://rpc-osmosis.cosmos-spaces.cloud",
       "provider": "Cosmos Spaces"
+    },
+    {
+      "address": "https://osmosis.rpc.kjnodes.com",
+      "provider": "kjnodes"
+    },
+    {
+      "address": "https://rpc-osmosis.whispernode.com",
+      "provider": "WhisperNode"
+    },
+    {
+      "address": "https://osmosis-rpc.publicnode.com",
+      "provider": "PublicNode"
     }
   ],
   "api": [
@@ -53,6 +65,18 @@
     {
       "address": "https://api-osmosis.cosmos-spaces.cloud",
       "provider": "Cosmos Spaces"
+    },
+    {
+      "address": "https://osmosis.api.kjnodes.com",
+      "provider": "kjnodes"
+    },
+    {
+      "address": "https://api-osmosis.whispernode.com",
+      "provider": "WhisperNode"
+    },
+    {
+      "address": "https://osmosis-rest.publicnode.com",
+      "provider": "PublicNode"
     }
   ],
   "assets": [
