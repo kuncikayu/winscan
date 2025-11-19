@@ -86,7 +86,8 @@ export default function Home() {
               left: `${10 + (index * 9)}%`,
               top: `${20 + (index % 5) * 15}%`,
               animationDelay: `${index * 0.5}s`,
-              animationDuration: `${15 + (index % 5) * 2}s`
+              animationDuration: `${15 + (index % 5) * 2}s`,
+              zIndex: 1
             }}
           >
             <img
@@ -100,6 +101,72 @@ export default function Home() {
             />
           </div>
         ))}
+        
+        {/* Flying Paxi Logos - Extra Animation Layer */}
+        {!loading && chains.find(c => c.chain_name.toLowerCase().includes('paxi')) && (
+          <>
+            <div
+              className="flying-paxi"
+              style={{
+                left: '5%',
+                top: '10%',
+                animationDelay: '0s',
+                animationDuration: '20s'
+              }}
+            >
+              <img
+                src="https://file.winsnip.xyz/file/uploads/paxi.jpg"
+                alt="Paxi"
+                className="w-12 h-12 lg:w-16 lg:h-16 rounded-full ring-2 ring-purple-500/30 shadow-2xl"
+              />
+            </div>
+            <div
+              className="flying-paxi"
+              style={{
+                right: '15%',
+                top: '30%',
+                animationDelay: '5s',
+                animationDuration: '25s'
+              }}
+            >
+              <img
+                src="https://file.winsnip.xyz/file/uploads/paxi.jpg"
+                alt="Paxi"
+                className="w-12 h-12 lg:w-16 lg:h-16 rounded-full ring-2 ring-purple-500/30 shadow-2xl"
+              />
+            </div>
+            <div
+              className="flying-paxi"
+              style={{
+                left: '70%',
+                bottom: '20%',
+                animationDelay: '10s',
+                animationDuration: '22s'
+              }}
+            >
+              <img
+                src="https://file.winsnip.xyz/file/uploads/paxi.jpg"
+                alt="Paxi"
+                className="w-12 h-12 lg:w-16 lg:h-16 rounded-full ring-2 ring-purple-500/30 shadow-2xl"
+              />
+            </div>
+            <div
+              className="flying-paxi"
+              style={{
+                right: '35%',
+                bottom: '15%',
+                animationDelay: '15s',
+                animationDuration: '28s'
+              }}
+            >
+              <img
+                src="https://file.winsnip.xyz/file/uploads/paxi.jpg"
+                alt="Paxi"
+                className="w-12 h-12 lg:w-16 lg:h-16 rounded-full ring-2 ring-purple-500/30 shadow-2xl"
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <style jsx global>{`
@@ -142,6 +209,33 @@ export default function Home() {
           }
         }
         
+        @keyframes fly-paxi {
+          0% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            opacity: 0.4;
+          }
+          20% {
+            transform: translate(100px, -80px) rotate(15deg) scale(1.1);
+            opacity: 0.7;
+          }
+          40% {
+            transform: translate(-50px, -120px) rotate(-10deg) scale(0.9);
+            opacity: 0.5;
+          }
+          60% {
+            transform: translate(120px, -60px) rotate(20deg) scale(1.15);
+            opacity: 0.8;
+          }
+          80% {
+            transform: translate(-80px, -100px) rotate(-15deg) scale(0.95);
+            opacity: 0.6;
+          }
+          100% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            opacity: 0.4;
+          }
+        }
+        
         @keyframes gradient-x {
           0%, 100% {
             background-position: 0% 50%;
@@ -162,6 +256,7 @@ export default function Home() {
           opacity: 0.3;
           filter: blur(0.5px);
           transition: all 0.3s ease;
+          z-index: 1;
         }
         
         .floating-logo:hover {
@@ -169,6 +264,24 @@ export default function Home() {
           filter: blur(0px);
           transform: scale(1.1);
           z-index: 10;
+        }
+        
+        .flying-paxi {
+          position: absolute;
+          animation: fly-paxi ease-in-out infinite;
+          opacity: 0.4;
+          filter: blur(0.3px);
+          transition: all 0.3s ease;
+          z-index: 2;
+          pointer-events: none;
+        }
+        
+        .flying-paxi:hover {
+          opacity: 0.9 !important;
+          filter: blur(0px) drop-shadow(0 0 20px rgba(168, 85, 247, 0.6));
+          transform: scale(1.2);
+          z-index: 15;
+          pointer-events: auto;
         }
         
         .aurora-line {
@@ -201,6 +314,10 @@ export default function Home() {
         
         @media (max-width: 768px) {
           .floating-logo {
+            display: none;
+          }
+          
+          .flying-paxi {
             display: none;
           }
         }
@@ -370,6 +487,79 @@ export default function Home() {
 
             {/* Networks Grid */}
             <section className="container mx-auto px-6 pb-16">
+              {/* Sponsors Section */}
+              <div className="mb-16 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-white mb-2">Powered By</h2>
+                  <p className="text-gray-400 text-sm">Our amazing sponsors</p>
+                </div>
+                
+                <div className="flex flex-wrap items-center justify-center gap-8 max-w-4xl mx-auto">
+                  {/* Paxi Sponsor */}
+                  <a
+                    href="https://paxinet.io"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all"></div>
+                    <div className="relative flex flex-col items-center gap-3 p-6 bg-gray-900/40 border border-gray-800/50 rounded-2xl hover:border-purple-500/30 transition-all group-hover:scale-105">
+                      <img
+                        src="https://file.winsnip.xyz/file/uploads/paxi.jpg"
+                        alt="Paxi"
+                        className="w-20 h-20 rounded-full ring-2 ring-gray-800/50 group-hover:ring-purple-500/50 transition-all"
+                      />
+                      <div className="text-center">
+                        <div className="text-base font-semibold text-white">Paxi</div>
+                        <div className="text-xs text-gray-500">Network Partner</div>
+                      </div>
+                    </div>
+                  </a>
+                  
+                  {/* Axone Sponsor */}
+                  <a
+                    href="https://axone.xyz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all"></div>
+                    <div className="relative flex flex-col items-center gap-3 p-6 bg-gray-900/40 border border-gray-800/50 rounded-2xl hover:border-purple-500/30 transition-all group-hover:scale-105">
+                      <img
+                        src="https://pbs.twimg.com/profile_images/1841523650043772928/EeZIYE7B_400x400.jpg"
+                        alt="Axone"
+                        className="w-20 h-20 rounded-full ring-2 ring-gray-800/50 group-hover:ring-purple-500/50 transition-all"
+                      />
+                      <div className="text-center">
+                        <div className="text-base font-semibold text-white">Axone</div>
+                        <div className="text-xs text-gray-500">Network Partner</div>
+                      </div>
+                    </div>
+                  </a>
+                  
+                  {/* BitBadges Sponsor */}
+                  <a
+                    href="https://bitbadges.io"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all"></div>
+                    <div className="relative flex flex-col items-center gap-3 p-6 bg-gray-900/40 border border-gray-800/50 rounded-2xl hover:border-purple-500/30 transition-all group-hover:scale-105">
+                      <img
+                        src="https://pbs.twimg.com/profile_images/1948901739765084160/RdCGkJt4_400x400.jpg"
+                        alt="BitBadges"
+                        className="w-20 h-20 rounded-full ring-2 ring-gray-800/50 group-hover:ring-purple-500/50 transition-all"
+                      />
+                      <div className="text-center">
+                        <div className="text-base font-semibold text-white">BitBadges</div>
+                        <div className="text-xs text-gray-500">Network Partner</div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
               <div className="space-y-12">
                 {displayMainnets.length > 0 && (
                   <div>
